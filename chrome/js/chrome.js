@@ -16,6 +16,7 @@ const Chrome = {
     this.windowsButton = document.getElementById('windows-button');
     this.newWindowMenuItem = document.getElementById('new-window-menu-item');
     this.newWindowButton = document.getElementById('new-window-button');
+    this.messageArea = document.getElementById('message-area');
 
     this.backButton.addEventListener('click', 
       this.handleBackButtonClick.bind(this));   
@@ -27,14 +28,21 @@ const Chrome = {
       this.handleNewWindowButtonClick.bind(this));
 
     window.addEventListener('_windowselected',
-      this.handleWindowSelected.bind(this))
+      this.handleWindowSelected.bind(this));
+    window.addEventListener('_error', this.handleError.bind(this));
 
     // Set the clock going
     this.updateClock();
     window.setInterval(this.updateClock.bind(this), 1000);
 
-    Homescreen.start();
-    Windows.start();
+    // Start database, app manager and views.
+    Database.start().then(() => {
+      window.webApps = new WebApps(Database);
+      return window.webApps.start();
+    }).then(() => {
+      WindowsView.start();
+      HomescreenView.start();
+    });
     
     // Uncomment the following two lines to open developer tools for webview
     //this.homescreenWebview.addEventListener('dom-ready',
@@ -98,6 +106,28 @@ const Chrome = {
       minutes = '0' + minutes;
 
     this.clock.textContent = hours + ':' + minutes;
+  },
+
+  /**
+   * Handle an error event.
+   * 
+   * @param {Event} event An event of type _error. 
+   */
+  handleError: function(event) {
+    this.showMessage(event.detail.error);
+  },
+
+  /**
+   * Show a message
+   * 
+   * Shows a message on the screen as a transient UI element (toast).
+   * 
+   * @param {String} message A message to show. 
+   */
+  showMessage: function(message) {
+    const toast = new MessageToast();
+    toast.setAttribute('message', message);
+    this.messageArea.appendChild(toast);
   }
 }
 
