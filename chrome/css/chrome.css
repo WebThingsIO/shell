@@ -77,3 +77,27 @@ html, body {
 #new-window-button {
   background-image: url("../images/add.svg");
 }
+
+/** Error message area **/
+
+.message-area {
+  position: fixed;
+  width: calc(100% - 160px);
+  margin: 0 80px;
+  min-width: 320px;
+  height: auto;
+  box-sizing: border-box;
+  bottom: 37px;
+  padding: 0;
+  max-height: calc(50% - 50px);
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.message-area message-toast {
+  margin: 5px auto;
+}
+
+message-toast {
+  margin: 10px auto;
+}

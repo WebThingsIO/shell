@@ -1,16 +1,19 @@
 const { v4: uuidv4 } = require('uuid');
 
 /**
- * Window Manager.
+ * Windows View.
  * 
  * Manages app windows.
  */
-const Windows = {
+const WindowsView = {
+  TITLE_BAR_APP_ICON_SIZE: 16,
+  DEFAULT_APP_ICON_URL: 'images/default-favicon.svg',
+
   /**
-   * Start the window manager.
+   * Start the windows view.
    */
   start: function() {
-    console.log('Starting window manager...');
+    console.log('Starting windows view...');
     this.view = document.getElementById('windows-view');
     this.windowSwitcher = document.getElementById('window-switcher');
     this.windowsElement = document.getElementById('windows');
@@ -28,6 +31,10 @@ const Windows = {
       this.handleWindowPreviewClicked.bind(this));
     this.windowPreviewsElement.addEventListener('_closewindowbuttonclicked', 
       this.handleCloseWindowButtonClicked.bind(this));
+    this.windowsElement.addEventListener('_pinapprequested',
+      this.handlePinAppRequest.bind(this));
+    this.windowsElement.addEventListener('_locationchanged', 
+      this.handleWindowLocationChange.bind(this));
 
     // The collection of open windows
     this.windows = new Map();
@@ -166,6 +173,66 @@ const Windows = {
     this.currentWindowId = id;
     this.hideWindowSwitcher();
     window.dispatchEvent(new CustomEvent('_windowselected'));
+  },
+
+  /**
+   * Handle a request to a pin an app.
+   * 
+   * @param {CustomEvent} event A _pinapprequested event containing manifest, manifestUrl and documentUrl 
+   */
+  handlePinAppRequest: function(event) {
+    const manifestUrl = event.detail.manifestUrl;
+    const documentUrl = event.detail.documentUrl;
+    const manifest = event.detail.manifest;
+    window.webApps.pin(manifestUrl, documentUrl, manifest).then((app) => {
+      console.log('Pinned app with scope ' +  app.scope);
+      // Pin all browser windows with a current URL within scope of the pinned app
+      this.windows.forEach((browserWindow, windowId, windowsMap) => {
+        const documentUrl = browserWindow.element.getUrl();
+        if(app.isWithinScope(documentUrl)) {
+          // Apply manifest to turn browsing context into application context
+          browserWindow.element.setAttribute('display', 'standalone');
+          browserWindow.element.setAttribute('application-name', app.name || app.short_name || '');
+          browserWindow.element.setAttribute('application-icon', app.getBestIconUrl(this.TITLE_BAR_APP_ICON_SIZE));
+        }
+      });
+    }).catch((error) => {
+      console.error('Failed to pin app: ' + error);
+      switch (error.message) {
+        case 'InvalidManfest':
+          window.dispatchEvent(new CustomEvent('_error', { detail: { error: 'Invalid app'}}));
+          break;
+        case 'PinAppFailed':
+          window.dispatchEvent(new CustomEvent('_error', { detail: { error: 'Failed to pin app'}}));
+          break;
+      }
+    });
+  },
+
+  /**
+   * Handle a location change of a window.
+   * 
+   * Check whether the URL matches the navigation scope of a pinned app, and set the display mode
+   * of the window accordingly.
+   * 
+   * @param {*} event 
+   */
+  handleWindowLocationChange: function(event) {
+    const url = event.detail.url;
+    const app = window.webApps.match(url);
+    const windowId = event.target.id;
+    const browserWindow = this.windows.get(windowId);
+    if (app) {
+      // Apply manifest to turn the browsing context into an application context
+      browserWindow.element.setAttribute('display', 'standalone');
+      browserWindow.element.setAttribute('application-name', app.name || app.short_name || '');
+      browserWindow.element.setAttribute('application-icon', app.getBestIconUrl(this.TITLE_BAR_APP_ICON_SIZE));
+    } else {
+      // Reset display mode, application name and application icon
+      browserWindow.element.setAttribute('display', 'browser');
+      browserWindow.element.setAttribute('application-name', '');
+      browserWindow.element.setAttribute('application-icon', this.DEFAULT_APP_ICON_URL);
+    }
   },
 
   /**

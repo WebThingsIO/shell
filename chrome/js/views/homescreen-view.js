@@ -1,15 +1,15 @@
 /**
- * Home screen.
+ * Homescreen View.
  */
-const Homescreen = {
+const HomescreenView = {
 
   HOME_PAGE: 'http://gateway.local',
 
   /**
-   * Start the home screen.
+   * Start the home screen view.
    */
   start: function() {
-    console.log('Starting home screen...');
+    console.log('Starting home screen view...');
     this.view = document.getElementById('homescreen-view');
     this.webview = document.getElementById('homescreen-webview');
     window.addEventListener('_backbuttonclicked',

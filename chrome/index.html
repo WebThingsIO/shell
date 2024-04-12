@@ -8,10 +8,15 @@
     <link rel="stylesheet" href="css/homescreen.css" type="text/css" />
     <link rel="stylesheet" href="css/windows.css" type="text/css" />
     <link rel="stylesheet" href="css/chrome.css" type="text/css" />
-    <script type="text/javascript" src="js/components/browser-window.js"></script>
-    <script type="text/javascript" src="js/components/window-preview.js"></script>
-    <script type="text/javascript" src="js/homescreen.js"></script>
-    <script type="text/javascript" src="js/windows.js"></script>
+    <script type="text/javascript" src="js/views/components/browser-window.js"></script>
+    <script type="text/javascript" src="js/views/components/window-preview.js"></script>
+    <script type="text/javascript" src="js/views/components/site-info-menu.js"></script>
+    <script type="text/javascript" src="js/views/components/message-toast.js"></script>
+    <script type="text/javascript" src="js/database.js"></script>
+    <script type="text/javascript" src="js/models/web-app.js"></script>
+    <script type="text/javascript" src="js/models/web-apps.js"></script>
+    <script type="text/javascript" src="js/views/homescreen-view.js"></script>
+    <script type="text/javascript" src="js/views/windows-view.js"></script>
     <script type="text/javascript" src="js/chrome.js"></script>
   </head>
   <body class="home">
@@ -34,5 +39,6 @@
       <li id="windows-menu-item"><button id="windows-button"></button></li>
       <li id="new-window-menu-item" class="hidden"><button id="new-window-button"></button></li>
     </menu>
+    <div id="message-area" class="message-area"></div>
   </body>
 </html>
