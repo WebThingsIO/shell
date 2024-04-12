@@ -175,6 +175,7 @@ class BrowserWindow extends HTMLElement {
     this.webview = this.shadowRoot.querySelector('webview');
     this.urlBar = this.shadowRoot.querySelector('.url-bar');
     this.urlBarInput = this.shadowRoot.querySelector('.url-bar-input');
+    this.stopButton = this.shadowRoot.querySelector('.stop-button');
     this.reloadButton = this.shadowRoot.querySelector('.reload-button');
     this.favicon = this.shadowRoot.querySelector('.favicon');
   }
@@ -228,6 +229,8 @@ class BrowserWindow extends HTMLElement {
       this.handleUrlBarBlur.bind(this));
     this.urlBar.addEventListener('submit',
       this.handleUrlBarSubmit.bind(this));
+    this.stopButton.addEventListener('click',
+      this.handleStopButtonClick.bind(this));
     this.reloadButton.addEventListener('click',
       this.handleReloadButtonClick.bind(this));
   }
@@ -366,6 +369,13 @@ class BrowserWindow extends HTMLElement {
     let iconUrl = event.favicons.slice(-1) || this.DEFAULT_FAVICON_URL;
     this.currentFaviconUrl = iconUrl;
     this.favicon.src = iconUrl;
+  }
+
+  /**
+   * Handle a click on the stop button.
+   */
+  handleStopButtonClick() {
+    this.webview.stop();
   }
 
   /**
