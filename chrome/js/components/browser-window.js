@@ -53,10 +53,45 @@ class BrowserWindow extends HTMLElement {
           background-color: #fff;
         }
 
+        /* CSS-only spinner from https://cssloaders.github.io/ */
+        .spinner {
+          display: none;
+          width: 16px;
+          height: 16px;
+          margin: 8px;
+          border: 2px solid #FFF;
+          border-bottom-color: transparent;
+          border-radius: 50%;
+          box-sizing: border-box;
+          animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+          0% {
+              transform: rotate(0deg);
+          }
+          100% {
+              transform: rotate(360deg);
+          }
+        }
+
+        .url-bar.loading .spinner {
+          display: inline-block;
+        }
+
+        .url-bar.loading.focused .spinner {
+          border: 2px solid #333;
+          border-bottom-color: #fff;
+        }
+
         .favicon {
           width: 16px;
           height: 16px;
           padding: 8px;
+        }
+
+        .url-bar.loading .favicon {
+          display: none;
         }
 
         .url-bar-input {
@@ -125,6 +160,7 @@ class BrowserWindow extends HTMLElement {
       </style>
       <menu class="browser-toolbar">
         <form class="url-bar">
+          <span class="spinner"></span>
           <img src="${this.DEFAULT_FAVICON_URL}" class="favicon" />
           <input type="text" class="url-bar-input">
           <input type="submit" value="" class="go-button">
