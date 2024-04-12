@@ -1,5 +1,5 @@
 /**
- * Webian Shell Touch.
+ * WebThings Shell.
  * 
  * Main script starts system chrome.
  */

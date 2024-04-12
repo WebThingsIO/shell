@@ -3,7 +3,7 @@
  */
 const Homescreen = {
 
-  HOME_PAGE: 'https://webian.org',
+  HOME_PAGE: 'http://gateway.local',
 
   /**
    * Start the home screen.

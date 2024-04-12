@@ -4,7 +4,7 @@ if grep -q "Pi 4" /proc/cpuinfo; then
   EXTRAOPTS="--disable-gpu"
 fi
 
-exec $SNAP/webian-shell-touch/webian-shell-touch \
+exec $SNAP/webthings-shell/webthings-shell \
 	--enable-features=UseOzonePlatform \
 	--ozone-platform=wayland \
 	--disable-dev-shm-usage \

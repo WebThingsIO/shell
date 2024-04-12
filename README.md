@@ -1,19 +1,19 @@
-# Webian Shell
+# WebThings Shell
 
-A graphical shell for the web (touch version).
+A web app runtime for smart displays.
 
-- [UI mockups](https://docs.google.com/presentation/d/e/2PACX-1vRW31WOIOGXZ97ni0-k_PAYwrkZbEam00LzKKF6eBtQHurT0HsIS8JF-ipRKqUPCwhjdbjBs9Wc7VtS/pub?start=false&loop=false&delayms=3000)
+- [UI mockups](https://docs.google.com/presentation/d/e/2PACX-1vRuYf4dpo1D9kfjkraS8T5MEyy-1ZWmVOch-ts8anU10RAbDyNVDy0SPF00gk5Of16EBcAhPBV6Og-1/pub?start=false&loop=false&delayms=3000)
 
 
 ## Building & Running
 
-To get started hacking on Webian Shell first make sure that you have [Git](https://git-scm.com/) installed.
+To get started hacking on WebThings Shell first make sure that you have [Git](https://git-scm.com/) installed.
 
 Clone the repository from GitHub:
 
 ```
-$ git clone https://github.com/webianproject/shell-touch.git
-$ cd shell-touch
+$ git clone https://github.com/WebThingsIO/shell.git
+$ cd shell
 ```
 
 ### Build for Linux desktop
@@ -69,22 +69,22 @@ $ sudo snap install ubuntu-frame --channel=22
 $ sudo snap install frame-it --classic
 ```
 
-- Install the self-built Webian Shell Touch snap locally:
+- Install the self-built WebThings Shell snap locally:
 
 ```
-$ sudo snap install --dangerous webian-shell-touch_0.1.0_amd64.snap
+$ sudo snap install --dangerous webthings-shell_0.1.0_amd64.snap
 ```
 
 - Configure the snap (needed to connect plugs whilst in development):
 
 ```
-$ /snap/webian-shell-touch/current/bin/setup.sh
+$ /snap/webthings-shell/current/bin/setup.sh
 ```
 
 - Run the snap using frame-it:
 
 ```
-$ frame-it webian-shell-touch
+$ frame-it webthings-shell
 ```
 
 ### Install on Ubuntu Core
@@ -94,7 +94,7 @@ To install a self-built snap package on Ubuntu Core:
 - Copy the built .snap package to the Raspberry Pi then SSH into it, using the IP address displayed on the screen and the username you assigned to your Ubuntu SSO account e.g.
 
 ```
-$ scp webian-shell-touch_0.1.0_armhf.snap joebloggs@192.168.1.123:~/
+$ scp webthings-shell_0.1.0_armhf.snap joebloggs@192.168.1.123:~/
 $ ssh joebloggs@192.168.1.123
 ```
 
@@ -104,32 +104,16 @@ $ ssh joebloggs@192.168.1.123
 $ snap install ubuntu-frame ubuntu-frame-osk avahi
 ```
 
-- Install the webian-shell-touch snap:
+- Install the webthings-shell snap:
 
 ```
-$ snap install --dangerous webian-shell-touch_0.1.0_armhf.snap
+$ snap install --dangerous webthings-shell_0.1.0_armhf.snap
 ```
 
 - Run the snap:
 
 ```
-$ sudo webian-shell-touch
+$ sudo webthings-shell
 ```
 
-The application should then start up full screen and load a https://webian.org if accessible.
-
-## License
-
-Webian Shell Touch is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Webian Shell is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Webian Shell in the LICENSE file. If not, see
-<http://www.gnu.org/licenses/>.
+The application should then start up full screen and load a http://gateway.local if accessible.
