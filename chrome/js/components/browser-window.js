@@ -168,7 +168,7 @@ class BrowserWindow extends HTMLElement {
           <input type="button" value="" class="reload-button">
         </form>
       </menu>
-      <webview class="browser-window-webview" src="https://duckduckgo.com/"></webview>
+      <webview class="browser-window-webview" src="https://duckduckgo.com/" preload="js/preload.js"></webview>
     `;
 
     this.shadowRoot.appendChild(template.content.cloneNode(true));
@@ -223,6 +223,11 @@ class BrowserWindow extends HTMLElement {
       this.handleStopLoading.bind(this));
     this.webview.addEventListener('page-favicon-updated',
       this.handleFaviconUpdated.bind(this));
+    this.webview.addEventListener('ipc-message', function(event) {
+      if (event.channel == 'manifest') {
+        console.log('Manifest URL is ' + event.args[0]);
+      }
+    });
     this.urlBarInput.addEventListener('focus',
       this.handleUrlBarFocus.bind(this));
     this.urlBarInput.addEventListener('blur',
