@@ -4,9 +4,6 @@ const electron = require('electron');
  * System chrome loaded inside the top level window.
  */
 const Chrome = {
-
-  HOME_PAGE: 'https://webian.org',
-
   /**
    * Start chrome.
    */

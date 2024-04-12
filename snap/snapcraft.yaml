@@ -1,14 +1,14 @@
-name: webian-shell-touch 
+name: webthings-shell
 version: 0.1.0
-summary: Webian Shell Touch
-description: A graphical shell for the web
+summary: WebThings Shell
+description: A web app runtime for smart displays
 confinement: strict
 compression: lzo
 grade: devel
 base: core22
 
 apps:
-  webian-shell-touch:
+  webthings-shell:
     command-chain:
       - bin/graphics-core22-wrapper
       - bin/wayland-launch
@@ -71,7 +71,7 @@ layout:
     bind: $SNAP/etc/gtk-3.0
 
 parts:
-  webian-shell-touch:
+  webthings-shell:
     plugin: nil
     source: .
     build-environment:
@@ -90,8 +90,8 @@ parts:
       npm install --unsafe-perm true
       electron-packager . --overwrite --platform=linux \
           --output=release-build --prune=true
-      cp -a ./webian-shell-touch-linux-* $SNAPCRAFT_PART_INSTALL/webian-shell-touch
-      chmod a+rx $SNAPCRAFT_PART_INSTALL/webian-shell-touch
+      cp -a ./webthings-shell-linux-* $SNAPCRAFT_PART_INSTALL/webthings-shell
+      chmod a+rx $SNAPCRAFT_PART_INSTALL/webthings-shell
     stage-packages:
       - libnspr4
       - libnss3
@@ -163,7 +163,7 @@ parts:
 
   graphics-core22:
     after:
-      - webian-shell-touch
+      - webthings-shell
       - wrapper
       - dbus
       - gsettings+pixbuf+imodules

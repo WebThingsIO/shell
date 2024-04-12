@@ -1,5 +1,5 @@
 {
-  "name": "webian-shell-touch",
+  "name": "webthings-shell",
   "version": "0.1.0",
   "description": "A graphical shell for the web",
   "main": "main.js",
@@ -9,10 +9,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/webianproject/shell-touch.git"
+    "url": "git+https://github.com/WebThingsIO/shell.git"
   },
-  "author": "Ben Francis",
-  "license": "GPL-3.0",
+  "author": "WebThingsIO",
+  "license": "MPL-2.0",
   "devDependencies": {
     "electron": "^28.2.2",
     "electron-packager": "^17.1.1"
