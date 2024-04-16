@@ -1,11 +1,74 @@
 # WebThings Shell
 
-A web app runtime for smart displays.
+WebThings Shell is a web app runtime for smart displays.
+
+It can be used to create your own touch screen control panel to view and interact with web applications, e.g. the web interface of [WebThings Gateway](https://webthings.io/gateway/).
 
 - [UI mockups](https://docs.google.com/presentation/d/e/2PACX-1vRuYf4dpo1D9kfjkraS8T5MEyy-1ZWmVOch-ts8anU10RAbDyNVDy0SPF00gk5Of16EBcAhPBV6Og-1/pub?start=false&loop=false&delayms=3000)
 
+## Installation
 
-## Building & Running
+### Install on Ubuntu Desktop
+
+Install the ubuntu-frame and frame-it snaps to enable access to the display:
+
+```
+$ sudo snap install ubuntu-frame --channel=22
+$ sudo snap install frame-it --classic
+```
+
+- Install the latest edge release of WebThings Shell:
+
+```
+$ sudo snap install --edge webthings-shell
+```
+
+- Configure the snap (needed while the snap is still in development):
+
+```
+$ /snap/webthings-snap/current/bin/setup.sh
+```
+
+- Run the snap using frame-it:
+
+```
+$ frame-it webthings-shell
+```
+
+The application should then start up full screen and load a WebThings Gateway web interface from http://gateway.local if available.
+
+### Install on Ubuntu Core
+
+To install the latest edge release of WebThings Shell on Ubuntu Core:
+- Follow the [instructions](https://ubuntu.com/download/raspberry-pi-core) to download, flash and configure Ubuntu Core on a Raspberry Pi and connect a display to the Pi
+- Install the ubuntu-frame and avahi snaps on the device to enable access to the display and mDNS lookups:
+
+```
+$ snap install ubuntu-frame ubuntu-frame-osk avahi
+```
+
+- Install the latest edge release of WebThings Shell:
+
+```
+$ snap install --edge webthings-shell
+```
+
+- Configure the snap (needed to connect plugs whilst in development):
+
+```
+$ /snap/webthings-shell/current/bin/setup.sh
+```
+
+- Run the snap:
+
+```
+$ sudo webthings-shell
+```
+
+The application should then start up full screen and load a WebThings Gateway web interface from http://gateway.local if available.
+
+
+## Development
 
 To get started hacking on WebThings Shell first make sure that you have [Git](https://git-scm.com/) installed.
 
@@ -39,81 +102,29 @@ Start the application:
 $ npm start
 ```
 
-The shell should start up full screen.
+The application should then start up full screen and load a WebThings Gateway web interface from http://gateway.local if available.
 
 ## Packaging
 
-### Package snap for current architecture
-
 Make sure you have [snapcraft](https://snapcraft.io/snapcraft) installed.
+
+### Package snap for local architecture
 
 ```
 $ snapcraft
 ```
 
 ### Package snap for other architectures
+
 ```
 $ snapcraft remote-build
 ```
 
-## Installing
+### Install a self-built snap
 
-### Install on Ubuntu Desktop
+A self-built snap can be installed using the --dangerous flag, e.g.
 
-To install a self-built snap package on Ubuntu Desktop for testing:
-
-- Install the ubuntu-frame and frame-it snaps to enable the application to access the display:
-
-```
-$ sudo snap install ubuntu-frame --channel=22
-$ sudo snap install frame-it --classic
-```
-
-- Install the self-built WebThings Shell snap locally:
 
 ```
 $ sudo snap install --dangerous webthings-shell_0.1.0_amd64.snap
 ```
-
-- Configure the snap (needed to connect plugs whilst in development):
-
-```
-$ /snap/webthings-shell/current/bin/setup.sh
-```
-
-- Run the snap using frame-it:
-
-```
-$ frame-it webthings-shell
-```
-
-### Install on Ubuntu Core
-
-To install a self-built snap package on Ubuntu Core:
-- Follow the [instructions](https://ubuntu.com/download/raspberry-pi-core) to download, flash and configure Ubuntu Core on a Raspberry Pi and connect a display to the Pi
-- Copy the built .snap package to the Raspberry Pi then SSH into it, using the IP address displayed on the screen and the username you assigned to your Ubuntu SSO account e.g.
-
-```
-$ scp webthings-shell_0.1.0_armhf.snap joebloggs@192.168.1.123:~/
-$ ssh joebloggs@192.168.1.123
-```
-
-- Install the ubuntu-frame and avahi snaps on the device to enable access to the display and mDNS lookups:
-
-```
-$ snap install ubuntu-frame ubuntu-frame-osk avahi
-```
-
-- Install the webthings-shell snap:
-
-```
-$ snap install --dangerous webthings-shell_0.1.0_armhf.snap
-```
-
-- Run the snap:
-
-```
-$ sudo webthings-shell
-```
-
-The application should then start up full screen and load a http://gateway.local if accessible.
