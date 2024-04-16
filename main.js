@@ -21,8 +21,9 @@
     console.log('Starting system chrome...');
     mainWindow.loadURL('file://' + path.join(__dirname, 'chrome/index.html'));
 
-    // Uncomment the following line to open DevTools
-    //mainWindow.webContents.openDevTools();
+    if (process.env.SHELL_ENV === 'development') {
+      mainWindow.webContents.openDevTools();
+    }
  }
 
  app.on('ready', start);
