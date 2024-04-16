@@ -98,8 +98,15 @@ $ npm install
 ```
 
 Start the application:
+
 ```
 $ npm start
+```
+
+Or to run the application with developer tools enabled:
+
+```
+$ npm run develop
 ```
 
 The application should then start up full screen and load a WebThings Gateway web interface from http://gateway.local if available.
