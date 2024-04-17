@@ -223,11 +223,8 @@ class BrowserWindow extends HTMLElement {
       this.handleStopLoading.bind(this));
     this.webview.addEventListener('page-favicon-updated',
       this.handleFaviconUpdated.bind(this));
-    this.webview.addEventListener('ipc-message', function(event) {
-      if (event.channel == 'manifest') {
-        console.log('Manifest URL is ' + event.args[0]);
-      }
-    });
+    this.webview.addEventListener('ipc-message',
+      this.handleIPCMessage.bind(this));
     this.urlBarInput.addEventListener('focus',
       this.handleUrlBarFocus.bind(this));
     this.urlBarInput.addEventListener('blur',
@@ -274,9 +271,11 @@ class BrowserWindow extends HTMLElement {
       newHostname = '';
     }
     this.currentUrl = event.url;
-    // If switching to another host, reset the favicon so that the old favicon
-    // doesn't get displayed for the new host
+    // If switching to another host, reset the favicon and manifest URLs so that
+    // the old ones don't get used for the new host
+    // TODO: Compare manifest scope rather than hostname
     if (newHostname !== oldHostname) {
+      this.currentManifestUrl = null;
       this.currentFaviconUrl = this.DEFAULT_FAVICON_URL;
       this.favicon.src = this.currentFaviconUrl;
     }
@@ -374,6 +373,18 @@ class BrowserWindow extends HTMLElement {
     let iconUrl = event.favicons.slice(-1) || this.DEFAULT_FAVICON_URL;
     this.currentFaviconUrl = iconUrl;
     this.favicon.src = iconUrl;
+  }
+
+  /**
+   * Handle receiving an IPC message from the embedded webview.
+   * 
+   * @param {Event} event The IPC message event. 
+   */
+  handleIPCMessage(event) {
+    if (event.channel == 'manifest') {
+      console.log('Manifest URL is ' + event.args[0]);
+      this.currentManifestUrl = event.args[0];
+    }
   }
 
   /**
