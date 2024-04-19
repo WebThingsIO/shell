@@ -409,10 +409,115 @@ class BrowserWindow extends HTMLElement {
    * Show a site info menu.
    */
   handleFaviconClick() {
-    const siteInfoMenu = new SiteInfoMenu(this.getTitle(), this.getFaviconUrl(), false);
-    this.shadowRoot.appendChild(siteInfoMenu);
+    let manifestUrl = this.currentManifestUrl;
+    let documentUrl = this.currentUrl;
+    let faviconUrl = this.currentFaviconUrl;
+    let title = this.getTitle();
+
+    // If the current page doesn't belong to an app, then show site info
+    if (!manifestUrl) {
+      const siteInfoMenu = new SiteInfoMenu(title, faviconUrl, false);
+      this.shadowRoot.appendChild(siteInfoMenu);
+    } else {
+    // Otherwise, fetch the web app manifest
+      this.fetchManifest().then((rawManifest) => {
+        const webApp = new WebApp(rawManifest, manifestUrl, documentUrl);
+        const name = webApp.getShortestName();
+        const appIconUrl = webApp.getBestIconUrl(this.APP_ICON_SIZE);
+        const siteInfoMenu = new SiteInfoMenu(
+          name || title, appIconUrl || faviconUrl, true
+        );
+        this.shadowRoot.appendChild(siteInfoMenu);
+      }).catch((error) => {
+        console.error('Failed to fetch or parse web app manifest: ' + error);
+        // Fall back to showing site info.
+        const siteInfoMenu = new SiteInfoMenu(title, faviconUrl, false);
+        this.shadowRoot.appendChild(siteInfoMenu);
+      });
+    }
   }
 
+  /**
+   * Fetch web app manifest for current page.
+   *
+   * Follows "steps for obtaining a manifest" in the W3C Web App Manifest spec
+   * https://www.w3.org/TR/appmanifest/#obtaining
+   *
+   * @return Promise Promise which resolves with parsed web app manifest.
+   */
+  fetchManifest() {
+    let pageUrl = this.currentUrl;
+    let manifestUrl = this.currentManifestUrl;
+    let credentialsMode = null;
+    return new Promise((resolve, reject) => {
+      // "Let origin be the Document's origin"
+      var origin = new URL(pageUrl).origin;
+      // "If origin is an opaque origin, terminate this algorithm."
+      if (origin === null) {
+        reject('Manifest linked from opaque origin');
+      }
+      // "If manifest link is null, terminate this algorithm.""
+      if (!manifestUrl) {
+        reject('No manifest URL');
+      }
+      // "If manifest link's href attribute's value is the empty string,
+      // then abort these steps."
+      if (manifestUrl == '') {
+        reject('Manifest URL is an empty string');
+      }
+      // "Let manifest URL be the result of parsing the value of the href attribute,
+      // relative to the element's base URL."
+      try {
+        var resolvedManifestUrl = new URL(manifestUrl, pageUrl).href;
+      } catch(e) {
+        // "If parsing fails, then abort these steps."
+        reject('Parsing manifest URL resolved against page URL failed.');
+      }
+
+      // 'If the manifest link's crossOrigin attribute's value is
+      // "use-credentials", then set request's credentials mode to "include".
+      // Otherwise, set request's credentials mode to "omit"'.
+      if (this.manifestCrossOrigin == 'use-credentials') {
+        credentialsMode = 'include';
+      } else {
+        credentialsMode = 'omit';
+      }
+      // Note: The following code is executed in the browsing context of the page
+      this.webview.executeJavaScript(`
+          function fetchManifest() {
+            return new Promise((resolve, reject) => {
+              // "Let request be a new Request."
+              // "Set request's URL to manifest URL."
+              var request = new Request('${resolvedManifestUrl}');
+              // "Set request's credentials mode..."
+              request.credentials = '${credentialsMode}';
+              // "Set request's mode is "cors"."
+              request.mode = 'cors';
+              // "Await the result of performing a fetch with request,
+              // letting response be the result."
+              fetch(request)
+                .then(response => response.json())
+                .then(json => {
+                  resolve(json);
+                }).catch(e =>{
+                  reject(e);
+                });
+            });
+          }
+          fetchManifest();
+        `
+      ).then(
+        (manifest) => {
+          resolve(manifest);
+        }
+      ).catch(
+        (reason) => {
+          console.error('Error fetching manifest' + reason);
+          reject(reason);
+        }
+      );
+    });
+  }
 }
 
 // Register custom element

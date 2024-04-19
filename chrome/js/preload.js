@@ -13,7 +13,7 @@ var checkForManifest = function() {
   var manifestLink = document.querySelector('link[rel="manifest"]');
   if (manifestLink) {
     ipcRenderer.sendToHost(
-      'manifestdetected',
+      'manifest',
       manifestLink.href,
       manifestLink.crossOrigin
     );
