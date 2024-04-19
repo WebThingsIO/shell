@@ -235,6 +235,8 @@ class BrowserWindow extends HTMLElement {
       this.handleStopButtonClick.bind(this));
     this.reloadButton.addEventListener('click',
       this.handleReloadButtonClick.bind(this));
+    this.favicon.addEventListener('click',
+      this.handleFaviconClick.bind(this));
   }
 
   /**
@@ -399,6 +401,16 @@ class BrowserWindow extends HTMLElement {
    */
   handleReloadButtonClick() {
     this.webview.reload();
+  }
+
+  /**
+   * Handle a click on a favicon.
+   * 
+   * Show a site info menu.
+   */
+  handleFaviconClick() {
+    const siteInfoMenu = new SiteInfoMenu(this.getTitle(), this.getFaviconUrl(), false);
+    this.shadowRoot.appendChild(siteInfoMenu);
   }
 
 }
