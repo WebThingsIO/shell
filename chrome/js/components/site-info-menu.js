@@ -8,14 +8,13 @@ class SiteInfoMenu extends HTMLElement {
     /**
      * Constructor.
      *
-     * @param {string} title - Title of website or web app.
-     * @param {string} iconUrl - URL of icon.
+     * @param {string} name - Name of a web app or title of website.
+     * @param {string} hostname - Host name of website or web app.
+     * @param {string} iconUrl - URL of app icon or site icon.
      * @param {boolean} isApp - True if web app manifest detected.
      */
-    constructor(title, iconUrl, isApp, x, y) {
+    constructor(name, hostname, iconUrl, isApp) {
       super();
-  
-      const appOrSite = isApp ? 'App' : 'Site';
   
       this.attachShadow({ mode: 'open' });
       const template = document.createElement('template');
@@ -68,24 +67,37 @@ class SiteInfoMenu extends HTMLElement {
             padding: 20px auto;
           }
   
-          .site-info .app-icon {
+          .site-info .app-icon, .site-info .site-icon {
             display: block;
             width: 64px;
             height: 64px;
             margin: 20px auto 10px auto;
           }
   
-          .site-info .app-name {
+          .site-info .app-name, .site-info .site-hostname {
             display: block;
-            font-size: 14px;
+            font-size: 13px;
             width: 200px;
-            margin: 0 auto 10px auto;
+            margin: 0 auto 5px auto;
             text-align: center;
+          }
+
+          .site-info .site-hostname {
+            margin-bottom: 20px;
+          }
+
+          .site-info .app-hostname {
+            display: block;
+            font-size: 11px;
+            width: 200px;
+            margin: 0 auto 20px auto;
+            text-align: center;
+            color: #666;
           }
   
           .site-info button {
             display: block;
-            margin: 2rem auto;
+            margin: 10px auto;
             background-color: #5f8dd3;
             border-radius: 5px;
             border: none;
@@ -98,18 +110,33 @@ class SiteInfoMenu extends HTMLElement {
             background-color: #3e76ca;
           }
         </style>
-  
         <div class="scrim"></div>
         <menu class="site-info">
-          <h1>Pin ${appOrSite}</h1>
-          <img class="app-icon" src="${iconUrl}" />
-          <span class="app-name">${title}</span>
-          <button class="pin-button">Pin</button>
         </menu>
       `;
+
+      let siteInfo;
+
+      if (isApp) {
+        siteInfo = `
+            <h1>Pin App</h1>
+            <img class="app-icon" src="${iconUrl}" />
+            <span class="app-name">${name}</span>
+            <span class="app-hostname">from ${hostname}</span>
+            <button class="pin-button">Pin</button>
+        `;
+      } else {
+        siteInfo = `
+            <img class="site-icon" src="${iconUrl}" />
+            <span class="site-hostname">${hostname}</span>
+        `;
+      }
   
       const templateClone = template.content.cloneNode(true);
       this.shadowRoot.appendChild(templateClone);
+
+      this.siteInfoMenu = this.shadowRoot.querySelector('.site-info');
+      this.siteInfoMenu.innerHTML = siteInfo;
   
       this.scrim = this.shadowRoot.querySelector('.scrim');
       this.scrim.addEventListener('click', this.handleScrimClick.bind(this));

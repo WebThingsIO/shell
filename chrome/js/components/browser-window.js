@@ -259,29 +259,17 @@ class BrowserWindow extends HTMLElement {
    * @param {Event} event The will-navigate or did-navigate event. 
    */
   handleLocationChange(event) {
-    // Compare old hostname with new hostname
-    let oldHostname;
+    let hostname;
     try {
-      oldHostname = new URL(this.currentUrl).hostname;
+      hostname = new URL(event.url).hostname;
     } catch (error) {
-      oldHostname = '';
-    }
-    let newHostname;
-    try {
-      newHostname = new URL(event.url).hostname;
-    } catch (error) {
-      newHostname = '';
+      hostname = '';
     }
     this.currentUrl = event.url;
-    // If switching to another host, reset the favicon and manifest URLs so that
-    // the old ones don't get used for the new host
-    // TODO: Compare manifest scope rather than hostname
-    if (newHostname !== oldHostname) {
-      this.currentManifestUrl = null;
-      this.currentFaviconUrl = this.DEFAULT_FAVICON_URL;
-      this.favicon.src = this.currentFaviconUrl;
-    }
-    this.urlBarInput.value = newHostname;
+    // Reset manifest URL and favicon
+    this.currentManifestUrl = null;
+    this.favicon.src = this.currentFaviconUrl = this.DEFAULT_FAVICON_URL;
+    this.urlBarInput.value = hostname;
     this.urlBarInput.blur();
   }
 
@@ -413,25 +401,31 @@ class BrowserWindow extends HTMLElement {
     let documentUrl = this.currentUrl;
     let faviconUrl = this.currentFaviconUrl;
     let title = this.getTitle();
+    let hostname;
+    try {
+      hostname = new URL(documentUrl).hostname;
+    } catch(error) {
+      hostname = '';
+    }
 
     // If the current page doesn't belong to an app, then show site info
     if (!manifestUrl) {
-      const siteInfoMenu = new SiteInfoMenu(title, faviconUrl, false);
+      const siteInfoMenu = new SiteInfoMenu(title, hostname, faviconUrl, false);
       this.shadowRoot.appendChild(siteInfoMenu);
     } else {
-    // Otherwise, fetch the web app manifest
+    // Otherwise, fetch the web app manifest and show app info
       this.fetchManifest().then((rawManifest) => {
         const webApp = new WebApp(rawManifest, manifestUrl, documentUrl);
         const name = webApp.getShortestName();
         const appIconUrl = webApp.getBestIconUrl(this.APP_ICON_SIZE);
         const siteInfoMenu = new SiteInfoMenu(
-          name || title, appIconUrl || faviconUrl, true
+          name || '', hostname, appIconUrl || faviconUrl, true
         );
         this.shadowRoot.appendChild(siteInfoMenu);
       }).catch((error) => {
         console.error('Failed to fetch or parse web app manifest: ' + error);
         // Fall back to showing site info.
-        const siteInfoMenu = new SiteInfoMenu(title, faviconUrl, false);
+        const siteInfoMenu = new SiteInfoMenu(title, hostname, faviconUrl, false);
         this.shadowRoot.appendChild(siteInfoMenu);
       });
     }
