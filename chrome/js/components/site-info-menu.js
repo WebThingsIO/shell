@@ -95,7 +95,7 @@ class SiteInfoMenu extends HTMLElement {
             color: #666;
           }
   
-          .site-info button {
+          .site-info .pin-button {
             display: block;
             margin: 10px auto;
             background-color: #5f8dd3;
@@ -139,16 +139,46 @@ class SiteInfoMenu extends HTMLElement {
       this.siteInfoMenu.innerHTML = siteInfo;
   
       this.scrim = this.shadowRoot.querySelector('.scrim');
+
+      this.pinButton = this.shadowRoot.querySelector('.pin-button')
+      
+    }
+
+     /**
+     * Add event listeners when element appended into document.
+     */
+    connectedCallback() {
       this.scrim.addEventListener('click', this.handleScrimClick.bind(this));
+      if(this.pinButton) {
+        this.pinButton.addEventListener('click', this.handlePinAppButtonClick.bind(this));
+      }
+    }
+
+    /**
+     * Remove event listeners when element disconnected from DOM.
+     */
+    disconnectedCallback() {
+
     }
   
     /**
      * Handle a click on the scrim.
      *
-     * @param {Event} e - The click event.
+     * @param {Event} event - The click event.
      */
-    handleScrimClick(e) {
-      // Remove the site info menu from the DOM
+    handleScrimClick(event) {
+      // Self-destruct (remove the site info menu from the DOM)
+      this.remove();
+    }
+
+    /**
+     * Handle a click on the pin app button.
+     *
+     * @param {Event} event - The click event.
+     */
+    handlePinAppButtonClick(event) {
+      // Dispatch an event to tell the browser window the user wants to pin the current app, then self-destruct
+      this.dispatchEvent(new CustomEvent('_pinappbuttonclicked'));
       this.remove();
     }
   

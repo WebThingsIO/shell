@@ -28,6 +28,8 @@ const Windows = {
       this.handleWindowPreviewClicked.bind(this));
     this.windowPreviewsElement.addEventListener('_closewindowbuttonclicked', 
       this.handleCloseWindowButtonClicked.bind(this));
+    this.windowsElement.addEventListener('_pinapprequested',
+      this.handlePinAppRequest.bind(this));
 
     // The collection of open windows
     this.windows = new Map();
@@ -166,6 +168,19 @@ const Windows = {
     this.currentWindowId = id;
     this.hideWindowSwitcher();
     window.dispatchEvent(new CustomEvent('_windowselected'));
+  },
+
+  handlePinAppRequest: function(event) {
+    const manifestUrl = event.detail.manifestUrl;
+    const documentUrl = event.detail.documentUrl;
+    const manifest = event.detail.manifest;
+    const id = manifestUrl; // TODO Process id member of manifest or fall back to default
+
+    Database.createApp(id, manifestUrl, documentUrl, manifest).then(() => {
+      console.log('Successfully pinned app with id: ' + id);
+    }).catch((error) => {
+      console.error('Error pinning app with id: ' + id);
+    });
   },
 
   /**

@@ -422,6 +422,7 @@ class BrowserWindow extends HTMLElement {
           name || '', hostname, appIconUrl || faviconUrl, true
         );
         this.shadowRoot.appendChild(siteInfoMenu);
+        siteInfoMenu.addEventListener('_pinappbuttonclicked', this.pinApp.bind(this));
       }).catch((error) => {
         console.error('Failed to fetch or parse web app manifest: ' + error);
         // Fall back to showing site info.
@@ -510,6 +511,33 @@ class BrowserWindow extends HTMLElement {
           reject(reason);
         }
       );
+    });
+  }
+
+  /**
+   * Pin the app the current page belongs to.
+   */
+  pinApp() {
+    const documentUrl = this.currentUrl;
+    const manifestUrl = this.currentManifestUrl;
+    if(!manifestUrl) {
+      console.error('User asked to pin app but no manifest URL found.')
+      return;
+    }
+
+    // Fetch the web manifest and dispatch an event with the 
+    // manifest URL, document URL and raw manifest content
+    this.fetchManifest().then((rawManifest) => {
+      this.dispatchEvent(new CustomEvent('_pinapprequested', {
+        detail: {
+          manifestUrl: manifestUrl,
+          documentUrl: documentUrl,
+          manifest: rawManifest
+        },
+        bubbles: true
+      }));
+    }).catch((error) => {
+      console.error('Failed to fetch or parse web app manifest: ' + error);
     });
   }
 }

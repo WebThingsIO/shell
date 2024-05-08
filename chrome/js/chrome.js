@@ -27,12 +27,13 @@ const Chrome = {
       this.handleNewWindowButtonClick.bind(this));
 
     window.addEventListener('_windowselected',
-      this.handleWindowSelected.bind(this))
+      this.handleWindowSelected.bind(this));
 
     // Set the clock going
     this.updateClock();
     window.setInterval(this.updateClock.bind(this), 1000);
 
+    Database.start();
     Homescreen.start();
     Windows.start();
     
