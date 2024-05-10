@@ -7,9 +7,12 @@ class WebApp {
 
     /**
      * Constructor.
+     * 
+     * @param {Object} rawManifest Raw JSON of manifest fetched from the server.
+     * @param {String} manifestUrl URL manifest was fetched from.
+     * @param {String} documentUrl URL of the document manifest was linked from.
      */
     constructor(rawManifest, manifestUrl, documentUrl) {
-      this.id = manifestUrl;
       this.manifest = rawManifest;
   
       // Parse manifest to dictionary
@@ -23,9 +26,9 @@ class WebApp {
      * Follows the algorithm defined in
      * https://www.w3.org/TR/appmanifest/#processing
      *
-     * @param Object rawManifest Raw JSON of manifest fetched from the server.
-     * @param String manifestUrl URL manifest was fetched from.
-     * @param String documentUrl URL of the document manifest was linked from.
+     * @param {Object} rawManifest Raw JSON of manifest fetched from the server.
+     * @param {String} manifestUrl URL manifest was fetched from.
+     * @param {String} documentUrl URL of the document manifest was linked from.
      */
     parseFromManifest(rawManifest, manifestUrl, documentUrl) {
   
@@ -41,11 +44,6 @@ class WebApp {
       // WebAppManifest dictionary."
       var manifest = {};
   
-      // Set app ID if saved in database
-      if(rawManifest._id) {
-        this.id = rawManifest._id;
-      }
-  
       manifest.name = rawManifest.name;
       manifest.short_name = rawManifest.short_name;
   
@@ -54,6 +52,9 @@ class WebApp {
       // document URL."
       manifest.start_url = this.processStartUrlMember(rawManifest.start_url,
         manifestUrl, documentUrl);
+
+      // Process the id member passing json and manifest. 
+      manifest.id = this.processIdMember(rawManifest.id, manifest.start_url);
   
       manifest.icons = this.processImageResources(rawManifest.icons, manifestUrl);
   
@@ -66,16 +67,16 @@ class WebApp {
       this.dictionary = manifest;
     }
   
-    /*
+    /**
      * Process start URL.
      *
      * Follows the algorithm defined in
      * https://www.w3.org/TR/appmanifest/#start_url-member
      *
-     * @param String value The raw value provided for start_url.
-     * @param String manifestUrl URL from which the manifest was fetched.
-     * @param String documentUrl URL of document from which manifest was linked.
-     * @return String processed start URL.
+     * @param {String} value The raw value provided for start_url.
+     * @param {String} manifestUrl URL from which the manifest was fetched.
+     * @param {String} documentUrl URL of document from which manifest was linked.
+     * @return {String} processed start URL.
      */
     processStartUrlMember(value, manifestUrl, documentUrl) {
       // "If value is the empty string, return document URL."
@@ -108,6 +109,52 @@ class WebApp {
         return startUrl.href;
       }
     }
+
+    /**
+     * Process id member.
+     * 
+     * Follows the algorithm defined in 
+     * https://www.w3.org/TR/appmanifest/#id-member
+     * 
+     * @param {String} value The value of the id member of the manifest.
+     * @param {String} starttUrl The processed start URL from the manifest.
+     * @returns {String} The processed id.
+     */
+    processIdMember(value, startUrl) {
+      // Set manifest["id"] to manifest["start_url"]. 
+      let id = startUrl;
+
+      // If the type of json["id"] is not string, return. 
+      if (typeof value != 'string') {
+        return id;
+      }
+
+      // If json["id"] is the empty string, return. 
+      if (value === '') {
+        return id;
+      }
+
+      // Let base origin be manifest["start_url"]'s origin. 
+      const baseOrigin = new URL(startUrl).origin;
+
+      // Let base origin be manifest["start_url"]'s origin. 
+      let potentialId;
+      try {
+        potentialId = new URL(value, baseOrigin).href;
+      } catch {
+        // If id is failure, return. 
+        return id;
+      }
+
+      // If id is not same origin as manifest["start_url"], return. 
+      if(new URL(potentialId).origin != new URL(startUrl).origin) {
+        return id;
+      }
+
+      // Set manifest["id"] to id. 
+      id = potentialId;
+      return id;
+    }
   
     /**
     * Process an array of image resources (e.g. a list of icons).
@@ -115,9 +162,9 @@ class WebApp {
     * Follows the steps defined in:
     * https://www.w3.org/TR/appmanifest/#dfn-processing-imageresource-members
     *
-    * @param Array imageResources The array of image resources to be processed.
-    * @param String manifestUrl The URL from which the manifest was fetched.
-    * @return Array An array of processed image resources.
+    * @param {Array} imageResources The array of image resources to be processed.
+    * @param {String} manifestUrl The URL from which the manifest was fetched.
+    * @return {Array} An array of processed image resources.
     */
     processImageResources(rawImageResources, manifestUrl) {
       if (!rawImageResources) {
@@ -159,9 +206,9 @@ class WebApp {
     * Follows the steps defined in:
     * https://www.w3.org/TR/appmanifest/#dfn-processing-the-src-member-of-an-image
     *
-    * @param Object imageResource The ImageResource containing the src.
-    * @param String manifestUrl The URL from which the manifest was fetched.
-    * @return URL The parsed src URL.
+    * @param {Object} imageResource The ImageResource containing the src.
+    * @param {String} manifestUrl The URL from which the manifest was fetched.
+    * @return {URL} The parsed src URL.
     */
     processSrcMember(imageResource, manifestUrl) {
       // 'Let value be image["src"].'
@@ -187,7 +234,7 @@ class WebApp {
     * https://www.w3.org/TR/appmanifest/#dfn-processing-the-type-member-of-an-image
     *
     * @param Object imageResource The ImageResource containing the type.
-    * @return String The processed type of the ImageResource.
+    * @return {String} The processed type of the ImageResource.
     */
     processTypeMember(imageResource) {
       // 'Let value be image["type"].'
@@ -208,8 +255,8 @@ class WebApp {
     * Follows the steps defined in:
     * https://www.w3.org/TR/appmanifest/#dfn-processing-the-sizes-member-of-an-image
     *
-    * @param Object imageResource The ImageResource containing the sizes member.
-    * @return Set A set of available sizes as strings of the form "32x32"
+    * @param {Object} imageResource The ImageResource containing the sizes member.
+    * @return {Set} A set of available sizes as strings of the form "32x32"
     */
     processSizesMember(imageResource) {
       // 'Let set be an empty set.'
@@ -238,8 +285,8 @@ class WebApp {
     * Follows the steps defined in:
     * https://www.w3.org/TR/appmanifest/#dfn-processing-the-purpose-member-of-an-image
     *
-    * @param Object imageResource The ImageResource containing the purpose member.
-    * @return Set A set of strings describing purposes (undefined if failure)
+    * @param {Object} imageResource The ImageResource containing the purpose member.
+    * @return {Set} A set of strings describing purposes (undefined if failure)
     */
     processPurposeMember(imageResource) {
       // 'The icon purposes are as follows:'
@@ -289,8 +336,8 @@ class WebApp {
     * Check that display member is a valid display mode as per
     * https://www.w3.org/TR/appmanifest/#dom-displaymodetype
     *
-    * @param String displayMode The display mode specified in the manifest.
-    * @return String A valid display mode or undefined.
+    * @param {String} displayMode The display mode specified in the manifest.
+    * @return {String} A valid display mode or undefined.
     */
     processDisplayMember(displayMode) {
       if (displayMode ===
@@ -307,7 +354,7 @@ class WebApp {
     /**
     * Get the shortest name of the app.
     *
-    * @return String short_name or name of app.
+    * @return {String} short_name or name of app.
     */
     getShortestName() {
       return this.dictionary.short_name || this.dictionary.name;
@@ -318,8 +365,8 @@ class WebApp {
     *
     * Tries to find an icon equal to or larger than the requested size.
     *
-    * @param number targetSize Preferred icon size in pixels.
-    * @return String short_name or name of app.
+    * @param {number} targetSize Preferred icon size in pixels.
+    * @return {String} short_name or name of app.
     */
     getBestIconUrl(targetSize) {
       if (!this.dictionary.icons || this.dictionary.icons.length == 0) {
@@ -395,16 +442,25 @@ class WebApp {
     /**
      * Get start URL.
      *
-     * @return String Start URL.
+     * @return {String} Start URL.
      */
     get startUrl() {
       return this.dictionary.start_url;
+    }
+
+    /**
+     * Get ID.
+     * 
+     * @return {String} App ID.
+     */
+    get id() {
+      return this.dictionary.id;
     }
   
     /**
      * Get name.
      *
-     * @return String Name of web app.
+     * @return {String} Name of web app.
      */
     get name() {
       return this.dictionary.name;
@@ -413,7 +469,7 @@ class WebApp {
     /**
      * Get short name.
      *
-     * @return String Short name of web app.
+     * @return {String} Short name of web app.
      */
     get shortName() {
       return this.dictionary.short_name;
@@ -422,7 +478,7 @@ class WebApp {
     /**
      * Get display mode.
      *
-     * @return String Display mode of app.
+     * @return {String} Display mode of app.
      */
     get display() {
       return this.dictionary.display;
@@ -431,7 +487,7 @@ class WebApp {
     /**
      * Get theme color.
      *
-     * @return String RGB hex string.
+     * @return {String} RGB hex string.
      */
     get themeColor() {
       return this.dictionary.theme_color;

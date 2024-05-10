@@ -170,11 +170,26 @@ const Windows = {
     window.dispatchEvent(new CustomEvent('_windowselected'));
   },
 
+  /**
+   * Handle a request to a pin an app.
+   * 
+   * @param {CustomEvent} event A _pinapprequested event containing manifest, manifestUrl and documentUrl 
+   */
   handlePinAppRequest: function(event) {
     const manifestUrl = event.detail.manifestUrl;
     const documentUrl = event.detail.documentUrl;
     const manifest = event.detail.manifest;
-    const id = manifestUrl; // TODO Process id member of manifest or fall back to default
+
+    // Try to parse id from manifest
+    let webApp;
+    try {
+      webApp = new WebApp(manifest, manifestUrl, documentUrl);
+    } catch(error) {
+      console.error('Failed to parse web app manifest retrieved from URL ' + manifestUrl);
+      // TODO: Show error to user
+      return;
+    }
+    const id = webApp.id;
 
     Database.createApp(id, manifestUrl, documentUrl, manifest).then(() => {
       console.log('Successfully pinned app with id: ' + id);

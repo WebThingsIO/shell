@@ -85,7 +85,7 @@ const Database = {
       };
 
       request.onerror = (event) => {
-        // TODO: Handle duplicate key error
+        // TODO: Handle duplicate key error (ignoring fragment)
         console.error('Error writing app object with id ' + id);
         reject(event);
       };
