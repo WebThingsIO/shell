@@ -33,7 +33,10 @@ const Chrome = {
     this.updateClock();
     window.setInterval(this.updateClock.bind(this), 1000);
 
-    Database.start();
+    // Start database, app manager, window manager and home screen.
+    Database.start().then(() => {
+      WebApps.start(Database);
+    });
     Homescreen.start();
     Windows.start();
     

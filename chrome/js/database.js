@@ -10,21 +10,27 @@ const Database = {
 
   /**
    * Start the database.
+   * 
+   * @returns {Promise} Promise that resolves when database opens successfully.
    */
   start: function() {
     console.log('Opening database...');
 
-    const request = window.indexedDB.open(this.DB_NAME, 2);
+    return new Promise((resolve, reject) => {
+      const request = window.indexedDB.open(this.DB_NAME, 1);
 
-    request.onerror = (event) => {
-      console.error('Error opening database');
-    }
+      request.onerror = (event) => {
+        console.error('Error opening database');
+        reject();
+      }
 
-    request.onsuccess = (event) => {
-      this.db = request.result;
-    };
+      request.onsuccess = (event) => {
+        this.db = request.result;
+        resolve();
+      };
 
-    request.onupgradeneeded = this.upgrade.bind(this); 
+      request.onupgradeneeded = this.upgrade.bind(this); 
+    });
   },
 
   /**
@@ -89,6 +95,36 @@ const Database = {
         console.error('Error writing app object with id ' + id);
         reject(event);
       };
+    });
+  },
+
+  /**
+   * List apps in database.
+   * 
+   * @returns {Promise<Map>} Promise which resolves to map of app IDs to app records.
+   */
+  listApps: function() {
+    return new Promise((resolve, reject) => {
+      const objectStore = this.db.transaction('apps').objectStore('apps');
+
+      let apps = new Map();
+
+      const request = objectStore.openCursor();
+
+      request.onsuccess = (event) => {
+        const cursor = event.target.result;
+        if(cursor) {
+          apps.set(cursor.key, cursor.value);
+          cursor.continue();
+        } else {
+          resolve(apps);
+        }
+      };
+
+      request.onerror = (event) => {
+        console.error('Error requesting cursor on app object store');
+        reject();
+      }
     });
   }
 }
