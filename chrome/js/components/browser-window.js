@@ -168,7 +168,7 @@ class BrowserWindow extends HTMLElement {
           <input type="button" value="" class="reload-button">
         </form>
       </menu>
-      <webview class="browser-window-webview" src="https://duckduckgo.com/"></webview>
+      <webview class="browser-window-webview" src="https://duckduckgo.com/" preload="js/preload.js"></webview>
     `;
 
     this.shadowRoot.appendChild(template.content.cloneNode(true));
@@ -223,6 +223,8 @@ class BrowserWindow extends HTMLElement {
       this.handleStopLoading.bind(this));
     this.webview.addEventListener('page-favicon-updated',
       this.handleFaviconUpdated.bind(this));
+    this.webview.addEventListener('ipc-message',
+      this.handleIPCMessage.bind(this));
     this.urlBarInput.addEventListener('focus',
       this.handleUrlBarFocus.bind(this));
     this.urlBarInput.addEventListener('blur',
@@ -233,6 +235,8 @@ class BrowserWindow extends HTMLElement {
       this.handleStopButtonClick.bind(this));
     this.reloadButton.addEventListener('click',
       this.handleReloadButtonClick.bind(this));
+    this.favicon.addEventListener('click',
+      this.handleFaviconClick.bind(this));
   }
 
   /**
@@ -255,27 +259,17 @@ class BrowserWindow extends HTMLElement {
    * @param {Event} event The will-navigate or did-navigate event. 
    */
   handleLocationChange(event) {
-    // Compare old hostname with new hostname
-    let oldHostname;
+    let hostname;
     try {
-      oldHostname = new URL(this.currentUrl).hostname;
+      hostname = new URL(event.url).hostname;
     } catch (error) {
-      oldHostname = '';
-    }
-    let newHostname;
-    try {
-      newHostname = new URL(event.url).hostname;
-    } catch (error) {
-      newHostname = '';
+      hostname = '';
     }
     this.currentUrl = event.url;
-    // If switching to another host, reset the favicon so that the old favicon
-    // doesn't get displayed for the new host
-    if (newHostname !== oldHostname) {
-      this.currentFaviconUrl = this.DEFAULT_FAVICON_URL;
-      this.favicon.src = this.currentFaviconUrl;
-    }
-    this.urlBarInput.value = newHostname;
+    // Reset manifest URL and favicon
+    this.currentManifestUrl = null;
+    this.favicon.src = this.currentFaviconUrl = this.DEFAULT_FAVICON_URL;
+    this.urlBarInput.value = hostname;
     this.urlBarInput.blur();
   }
 
@@ -372,6 +366,18 @@ class BrowserWindow extends HTMLElement {
   }
 
   /**
+   * Handle receiving an IPC message from the embedded webview.
+   * 
+   * @param {Event} event The IPC message event. 
+   */
+  handleIPCMessage(event) {
+    if (event.channel == 'manifest') {
+      console.log('Manifest URL is ' + event.args[0]);
+      this.currentManifestUrl = event.args[0];
+    }
+  }
+
+  /**
    * Handle a click on the stop button.
    */
   handleStopButtonClick() {
@@ -385,6 +391,155 @@ class BrowserWindow extends HTMLElement {
     this.webview.reload();
   }
 
+  /**
+   * Handle a click on a favicon.
+   * 
+   * Show a site info menu.
+   */
+  handleFaviconClick() {
+    let manifestUrl = this.currentManifestUrl;
+    let documentUrl = this.currentUrl;
+    let faviconUrl = this.currentFaviconUrl;
+    let title = this.getTitle();
+    let hostname;
+    try {
+      hostname = new URL(documentUrl).hostname;
+    } catch(error) {
+      hostname = '';
+    }
+
+    // If the current page doesn't belong to an app, then show site info
+    if (!manifestUrl) {
+      const siteInfoMenu = new SiteInfoMenu(title, hostname, faviconUrl, false);
+      this.shadowRoot.appendChild(siteInfoMenu);
+    } else {
+    // Otherwise, fetch the web app manifest and show app info
+      this.fetchManifest().then((rawManifest) => {
+        const webApp = new WebApp(rawManifest, manifestUrl, documentUrl);
+        const name = webApp.getShortestName();
+        const appIconUrl = webApp.getBestIconUrl(this.APP_ICON_SIZE);
+        const siteInfoMenu = new SiteInfoMenu(
+          name || '', hostname, appIconUrl || faviconUrl, true
+        );
+        this.shadowRoot.appendChild(siteInfoMenu);
+        siteInfoMenu.addEventListener('_pinappbuttonclicked', this.pinApp.bind(this));
+      }).catch((error) => {
+        console.error('Failed to fetch or parse web app manifest: ' + error);
+        // Fall back to showing site info.
+        const siteInfoMenu = new SiteInfoMenu(title, hostname, faviconUrl, false);
+        this.shadowRoot.appendChild(siteInfoMenu);
+      });
+    }
+  }
+
+  /**
+   * Fetch web app manifest for current page.
+   *
+   * Follows "steps for obtaining a manifest" in the W3C Web App Manifest spec
+   * https://www.w3.org/TR/appmanifest/#obtaining
+   *
+   * @return Promise Promise which resolves with parsed web app manifest.
+   */
+  fetchManifest() {
+    let pageUrl = this.currentUrl;
+    let manifestUrl = this.currentManifestUrl;
+    let credentialsMode = null;
+    return new Promise((resolve, reject) => {
+      // "Let origin be the Document's origin"
+      var origin = new URL(pageUrl).origin;
+      // "If origin is an opaque origin, terminate this algorithm."
+      if (origin === null) {
+        reject('Manifest linked from opaque origin');
+      }
+      // "If manifest link is null, terminate this algorithm.""
+      if (!manifestUrl) {
+        reject('No manifest URL');
+      }
+      // "If manifest link's href attribute's value is the empty string,
+      // then abort these steps."
+      if (manifestUrl == '') {
+        reject('Manifest URL is an empty string');
+      }
+      // "Let manifest URL be the result of parsing the value of the href attribute,
+      // relative to the element's base URL."
+      try {
+        var resolvedManifestUrl = new URL(manifestUrl, pageUrl).href;
+      } catch(e) {
+        // "If parsing fails, then abort these steps."
+        reject('Parsing manifest URL resolved against page URL failed.');
+      }
+
+      // 'If the manifest link's crossOrigin attribute's value is
+      // "use-credentials", then set request's credentials mode to "include".
+      // Otherwise, set request's credentials mode to "omit"'.
+      if (this.manifestCrossOrigin == 'use-credentials') {
+        credentialsMode = 'include';
+      } else {
+        credentialsMode = 'omit';
+      }
+      // Note: The following code is executed in the browsing context of the page
+      this.webview.executeJavaScript(`
+          function fetchManifest() {
+            return new Promise((resolve, reject) => {
+              // "Let request be a new Request."
+              // "Set request's URL to manifest URL."
+              var request = new Request('${resolvedManifestUrl}');
+              // "Set request's credentials mode..."
+              request.credentials = '${credentialsMode}';
+              // "Set request's mode is "cors"."
+              request.mode = 'cors';
+              // "Await the result of performing a fetch with request,
+              // letting response be the result."
+              fetch(request)
+                .then(response => response.json())
+                .then(json => {
+                  resolve(json);
+                }).catch(e =>{
+                  reject(e);
+                });
+            });
+          }
+          fetchManifest();
+        `
+      ).then(
+        (manifest) => {
+          resolve(manifest);
+        }
+      ).catch(
+        (reason) => {
+          console.error('Error fetching manifest' + reason);
+          reject(reason);
+        }
+      );
+    });
+  }
+
+  /**
+   * Pin the app the current page belongs to.
+   */
+  pinApp() {
+    const documentUrl = this.currentUrl;
+    const manifestUrl = this.currentManifestUrl;
+    if(!manifestUrl) {
+      console.error('User asked to pin app but no manifest URL found.')
+      return;
+    }
+
+    // Fetch the web manifest and dispatch an event with the 
+    // manifest URL, document URL and raw manifest content
+    this.fetchManifest().then((rawManifest) => {
+      this.dispatchEvent(new CustomEvent('_pinapprequested', {
+        detail: {
+          manifestUrl: manifestUrl,
+          documentUrl: documentUrl,
+          manifest: rawManifest
+        },
+        bubbles: true
+      }));
+    }).catch((error) => {
+      console.error('Failed to fetch or parse web app manifest: ' + error);
+    });
+  }
 }
 
 // Register custom element
