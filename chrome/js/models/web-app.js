@@ -482,8 +482,8 @@ class WebApp {
   
         // filter out monochrome and maskable icons and those without a src
         if(!icon.src ||
-          (!icon.purpose.has('any') && icon.purpose.has('monochrome')) ||
-          (!icon.purpose.has('any') && icon.purpose.has('maskable'))) {
+          (icon.purpose && !icon.purpose.has('any') && icon.purpose.has('monochrome')) ||
+          (icon.purpose && !icon.purpose.has('any') && icon.purpose.has('maskable'))) {
           return;
         }
   
