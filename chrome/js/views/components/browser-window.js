@@ -1,3 +1,5 @@
+const path = require('path');
+
 /**
  * Browser Window.
  * 
@@ -5,11 +7,11 @@
  * 
  */
 class BrowserWindow extends HTMLElement {
-
+  NEW_TAB_URL = 'file://' + path.join(__dirname, '/newtab/index.html');
   DEFAULT_FAVICON_URL = 'images/default-favicon.svg';
   SITE_INFO_APP_ICON_SIZE = 64;
   currentFaviconUrl = this.DEFAULT_FAVICON_URL;
-  static observedAttributes = ['display', 'application-name', 'application-icon'];
+  static observedAttributes = ['display-mode', 'application-name', 'application-icon', 'src'];
   
   /**
    * Constructor.
@@ -35,7 +37,7 @@ class BrowserWindow extends HTMLElement {
           display: none;
         }
 
-        :host([display='standalone']) .title-bar {
+        :host([display-mode='standalone']) .title-bar {
           display: flex;
           position: absolute;
           top: 0;
@@ -75,7 +77,7 @@ class BrowserWindow extends HTMLElement {
           box-sizing: border-box;
         }
 
-        :host([display='standalone']) .browser-toolbar {
+        :host([display-mode='standalone']) .browser-toolbar {
           display: none;
         }
 
@@ -211,7 +213,7 @@ class BrowserWindow extends HTMLElement {
           <input type="button" value="" class="reload-button">
         </form>
       </menu>
-      <webview class="browser-window-webview" src="https://duckduckgo.com/" preload="js/webview-preload.js"></webview>
+      <webview class="browser-window-webview" src="${this.NEW_TAB_URL}" preload="js/webview-preload.js"></webview>
     `;
 
     this.shadowRoot.appendChild(template.content.cloneNode(true));
@@ -274,7 +276,7 @@ class BrowserWindow extends HTMLElement {
   }
 
   /**
-   * Add event listeners when element appended into document.
+   * Add event listeners when element added into document.
    */
   connectedCallback() {
     this.webview.addEventListener('will-navigate',
@@ -291,6 +293,8 @@ class BrowserWindow extends HTMLElement {
       this.handleFaviconUpdated.bind(this));
     this.webview.addEventListener('ipc-message',
       this.handleIPCMessage.bind(this));
+    this.webview.addEventListener('did-attach', 
+      this.handleWebviewReady.bind(this));
     this.urlBarInput.addEventListener('focus',
       this.handleUrlBarFocus.bind(this));
     this.urlBarInput.addEventListener('blur',
@@ -303,6 +307,16 @@ class BrowserWindow extends HTMLElement {
       this.handleReloadButtonClick.bind(this));
     this.favicon.addEventListener('click',
       this.handleFaviconClick.bind(this));
+  }
+
+  /**
+   * Do things that need to be done once the webview is attached to the DOM.
+   * 
+   * @param {Event} event The did-attach event.
+   */
+  handleWebviewReady(event) {
+    // Uncomment this line to show developer tools for embedded webview.
+    //this.webview.openDevTools();
   }
 
   /**
@@ -321,13 +335,18 @@ class BrowserWindow extends HTMLElement {
    */
   attributeChangedCallback(name, oldValue, newValue) {
     switch (name) {
-      case 'display':
+      case 'display-mode':
         break;
       case 'application-name':
         this.setAppName(newValue);
         break;
       case 'application-icon':
         this.setAppIcon(newValue);
+        break;
+      case 'src':
+        if (newValue != this.currentUrl) {
+          this.webview.loadURL(newValue);
+        }
         break;
     }
   }
@@ -355,8 +374,16 @@ class BrowserWindow extends HTMLElement {
     // Reset manifest URL and favicon
     this.currentManifestUrl = null;
     this.favicon.src = this.currentFaviconUrl = this.DEFAULT_FAVICON_URL;
-    this.urlBarInput.value = hostname;
-    this.urlBarInput.blur();
+    // If new tab then clear and focus the URL bar
+    if (event.url === this.NEW_TAB_URL) {
+      this.urlBarInput.focus();
+      this.urlBarInput.value = '';
+    // Otherwise blur the URL bar and set its value to the hostname
+    } else {
+      this.urlBarInput.blur();
+      this.urlBarInput.value = hostname;
+    }
+    this.setAttribute('src', event.url);
     // Dispatch _locationchanged event
     this.dispatchEvent(new CustomEvent('_locationchanged', {
       detail: {
@@ -388,8 +415,12 @@ class BrowserWindow extends HTMLElement {
    */
   handleUrlBarFocus() {
     this.urlBar.classList.add('focused');
-    this.urlBarInput.value = this.currentUrl;
-    this.urlBarInput.select();
+    if (this.currentUrl === this.NEW_TAB_URL) {
+      this.urlBarInput.value = '';
+    } else {
+      this.urlBarInput.value = this.currentUrl;
+      this.urlBarInput.select();
+    }
   }
 
   /**
@@ -439,7 +470,7 @@ class BrowserWindow extends HTMLElement {
   /**
    * Handle the webview starting loading.
    */
-   handleStartLoading() {
+  handleStartLoading() {
     this.urlBar.classList.add('loading');
   }
 

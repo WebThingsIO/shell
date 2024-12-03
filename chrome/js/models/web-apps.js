@@ -70,18 +70,22 @@ class WebApps {
    * Refresh the list of apps in memory.
    */
   async refreshAppList() {
-    this.db.listApps().then((appRecords) => {
-      appRecords.forEach((appRecord, appId) => {
-        try {
-          let webApp = new WebApp(appRecord.manifest, appRecord.manifestUrl, 
-            appRecord.documentUrl);
-          this.apps.set(appId, webApp);
-        } catch(error) {
-          console.error('Failed to instantiate web app with id ' + appId + ' ' + error);
-        }
-      });
-      return;
+    let appRecords = new Map();
+    try {
+      appRecords = await this.db.listApps();
+    } catch(error) {
+      console.error('Error retrieving list of apps from database: ' + error);
+    }
+    appRecords.forEach((appRecord, appId) => {
+      try {
+        let webApp = new WebApp(appRecord.manifest, appRecord.manifestUrl, 
+          appRecord.documentUrl);
+        this.apps.set(appId, webApp);
+      } catch(error) {
+        console.error('Failed to instantiate web app with id ' + appId + ' ' + error);
+      }
     });
+    return;
   }
 
   /**

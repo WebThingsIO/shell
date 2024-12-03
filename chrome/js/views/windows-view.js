@@ -191,7 +191,7 @@ const WindowsView = {
         const documentUrl = browserWindow.element.getUrl();
         if(app.isWithinScope(documentUrl)) {
           // Apply manifest to turn browsing context into application context
-          browserWindow.element.setAttribute('display', 'standalone');
+          browserWindow.element.setAttribute('display-mode', 'standalone');
           browserWindow.element.setAttribute('application-name', app.name || app.short_name || '');
           browserWindow.element.setAttribute('application-icon', app.getBestIconUrl(this.TITLE_BAR_APP_ICON_SIZE));
         }
@@ -224,12 +224,12 @@ const WindowsView = {
     const browserWindow = this.windows.get(windowId);
     if (app) {
       // Apply manifest to turn the browsing context into an application context
-      browserWindow.element.setAttribute('display', 'standalone');
+      browserWindow.element.setAttribute('display-mode', 'standalone');
       browserWindow.element.setAttribute('application-name', app.name || app.short_name || '');
       browserWindow.element.setAttribute('application-icon', app.getBestIconUrl(this.TITLE_BAR_APP_ICON_SIZE));
     } else {
       // Reset display mode, application name and application icon
-      browserWindow.element.setAttribute('display', 'browser');
+      browserWindow.element.setAttribute('display-mode', 'browser');
       browserWindow.element.setAttribute('application-name', '');
       browserWindow.element.setAttribute('application-icon', this.DEFAULT_APP_ICON_URL);
     }

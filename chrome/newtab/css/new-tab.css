@@ -1,0 +1,19 @@
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Fira Sans', sans-serif;
+  background-color: #5d5d5d; 
+}
+
+#apps {
+  padding: 32px;
+}
+
+app-icon {
+  float: left;
+}
