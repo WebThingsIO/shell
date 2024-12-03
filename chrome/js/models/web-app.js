@@ -119,7 +119,7 @@ class WebApp {
      * https://w3c.github.io/manifest/#processing-text-members
      * 
      * @param {string} value The raw value provided.
-     * @return {string} The processed value.
+     * @return {string|undefined} The processed value.
      */
     processTextMember(value) {
       // "If json[member] doesn't exists or json[member] is not a string, return."
@@ -538,6 +538,15 @@ class WebApp {
       } else {
         return undefined;
       }
+    }
+
+    /**
+     * Get the shortest available app name.
+     * 
+     * @returns {string|undefined} The short_name or name of the app.
+     */
+    getShortestName() {
+      return this.dictionary.shortName || this.dictionary.name;
     }
 
     /**
