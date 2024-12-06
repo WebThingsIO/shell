@@ -12,8 +12,9 @@ class SiteInfoMenu extends HTMLElement {
      * @param {string} hostname - Host name of website or web app.
      * @param {string} iconUrl - URL of app icon or site icon.
      * @param {boolean} isApp - True if web app manifest detected.
+     * @param {boolean} isPinned - True if app is pinned.
      */
-    constructor(name, hostname, iconUrl, isApp) {
+    constructor(name, hostname, iconUrl, isApp, isPinned) {
       super();
   
       this.attachShadow({ mode: 'open' });
@@ -32,14 +33,12 @@ class SiteInfoMenu extends HTMLElement {
           }
   
           .site-info {
-            left: 9px;
-            top: 60px;
+            position: fixed;
             width: 250px;
             display: block;
             background-color: #e5e5e5;
             border-radius: 5px;
             border: solid 1px #bfbfbf;
-            position: fixed;
             padding: 10px;
             margin: 7.5px 0;
             z-index: 2;
@@ -115,15 +114,23 @@ class SiteInfoMenu extends HTMLElement {
         </menu>
       `;
 
-      let siteInfo;
+      let pinOrUnpin;
+      if(isPinned) {
+        this.isPinned = true;
+        pinOrUnpin = 'Unpin';
+      } else {
+        this.isPinned = false;
+        pinOrUnpin = 'Pin';
+      }
 
+      let siteInfo;
       if (isApp) {
         siteInfo = `
-            <h1>Pin App</h1>
+            <h1>${pinOrUnpin} App</h1>
             <img class="app-icon" src="${iconUrl}" />
             <span class="app-name">${name}</span>
             <span class="app-hostname">from ${hostname}</span>
-            <button class="pin-button">Pin</button>
+            <button class="pin-button">${pinOrUnpin}</button>
         `;
       } else {
         siteInfo = `
@@ -172,13 +179,19 @@ class SiteInfoMenu extends HTMLElement {
     }
 
     /**
-     * Handle a click on the pin app button.
+     * Handle a click on the pin/unpin app button.
      *
      * @param {Event} event - The click event.
      */
     handlePinAppButtonClick(event) {
-      // Dispatch an event to tell the browser window the user wants to pin the current app, then self-destruct
-      this.dispatchEvent(new CustomEvent('_pinappbuttonclicked'));
+      if(this.isPinned) {
+        // Dispatch an event to tell the browser window the user wants to unpin the current app
+        this.dispatchEvent(new CustomEvent('_unpinappbuttonclicked'));
+      } else {
+        // Dispatch an event to tell the browser window the user wants to pin the current app
+        this.dispatchEvent(new CustomEvent('_pinappbuttonclicked'));
+      }
+      // Self-destruct
       this.remove();
     }
   

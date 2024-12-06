@@ -198,6 +198,17 @@ class BrowserWindow extends HTMLElement {
           width: 100%;
           flex: 1;
         }
+
+        site-info-menu {
+          position: fixed;
+          left: 9px;
+          top: 60px;
+        }
+
+        :host([display-mode='standalone']) site-info-menu {
+          left: 4px;
+          top: 28px;
+        }
       </style>
       <menu class="title-bar">
         <img src="${this.DEFAULT_FAVICON_URL}" class="title-bar-icon" />
@@ -262,8 +273,19 @@ class BrowserWindow extends HTMLElement {
    * 
    * @param {string} name The name of the app.
    */
-  setAppName(name) {
+  setApplicationName(name) {
+    this.applicationName = name;
     this.titleBarText.textContent = name;
+  }
+
+  /**
+   * Set the src of the title bar icon.
+   * 
+   * @param {string} url The URL of the icon to use.
+   */
+  setApplicationIcon(url) {
+    this.applicationIcon = url;
+    this.titleBarIcon.src = url;
   }
 
   /**
@@ -271,7 +293,8 @@ class BrowserWindow extends HTMLElement {
    * 
    * @param {string} url The URL of the icon to load. 
    */
-  setAppIcon(url) {
+  set(url) {
+    this.applicationIcon = url;
     this.titleBarIcon.src = url;
   }
 
@@ -295,6 +318,8 @@ class BrowserWindow extends HTMLElement {
       this.handleIPCMessage.bind(this));
     this.webview.addEventListener('did-attach', 
       this.handleWebviewReady.bind(this));
+    this.titleBarIcon.addEventListener('click',
+      this.handleTitleBarIconClick.bind(this));
     this.urlBarInput.addEventListener('focus',
       this.handleUrlBarFocus.bind(this));
     this.urlBarInput.addEventListener('blur',
@@ -338,10 +363,10 @@ class BrowserWindow extends HTMLElement {
       case 'display-mode':
         break;
       case 'application-name':
-        this.setAppName(newValue);
+        this.setApplicationName(newValue || '');
         break;
       case 'application-icon':
-        this.setAppIcon(newValue);
+        this.setApplicationIcon(newValue || this.DEFAULT_FAVICON_URL);
         break;
       case 'src':
         if (newValue != this.currentUrl) {
@@ -356,6 +381,30 @@ class BrowserWindow extends HTMLElement {
    */
   goBack() {
     this.webview.goBack();
+  }
+
+  /**
+   * Handle a click on the title bar icon.
+   * 
+   * @param {Event} event The click event.
+   */
+  handleTitleBarIconClick(event) {
+    let hostname;
+    try {
+      hostname = new URL(this.currentUrl).hostname;
+    } catch(error) {
+      hostname = '';
+    }
+    const siteInfoMenu = new SiteInfoMenu(
+      this.applicationName,
+      hostname,
+      // TODO: Figure out how to get a higher resolution icon
+      this.applicationIcon,
+      true,
+      true);
+    this.shadowRoot.appendChild(siteInfoMenu);
+    siteInfoMenu.addEventListener('_unpinappbuttonclicked',
+      this.dispatchUnpinAppRequest.bind(this));
   }
 
   /**
@@ -668,6 +717,19 @@ class BrowserWindow extends HTMLElement {
     }).catch((error) => {
       console.error('Failed to fetch or parse web app manifest: ' + error);
     });
+  }
+
+  /**
+   * Dispatch a request to unpin the app the current page belongs to.
+   */
+  dispatchUnpinAppRequest() {
+    const documentUrl = this.currentUrl;
+    this.dispatchEvent(new CustomEvent('_unpinapprequested', {
+      detail: {
+        documentUrl: documentUrl
+      },
+      bubbles: true
+    }));
   }
 }
 

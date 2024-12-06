@@ -53,7 +53,25 @@ class WebApps {
       return webApp;
     } catch (error) {
       console.error('Error pinning app with id: ' + id);
+      console.error(error);
       throw new Error('PinAppFailed');
+    }
+  }
+
+  /**
+   * Unpin the app with the given ID.
+   * 
+   * @param {string} id The ID of the app to unpin.
+   */
+  async unpin(id) {
+    try {
+      await this.db.deleteApp(id);
+      await this.refreshAppList();
+      return;
+    } catch(error) {
+      console.error('Error unpinning app with id: ' + id);
+      console.error(error);
+      throw new Error('UnpinAppFailed');
     }
   }
 
@@ -70,6 +88,7 @@ class WebApps {
    * Refresh the list of apps in memory.
    */
   async refreshAppList() {
+    this.apps.clear();
     let appRecords = new Map();
     try {
       appRecords = await this.db.listApps();
