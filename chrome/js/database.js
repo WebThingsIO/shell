@@ -66,7 +66,7 @@ const Database = {
    */
   createApp: function(id, manifestUrl, documentUrl, manifest) {
     return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction(["apps"], "readwrite");
+      const transaction = this.db.transaction(['apps'], 'readwrite');
 
       transaction.oncomplete = (event) => {
         console.log('successfully created app with id ' + id);
@@ -92,6 +92,39 @@ const Database = {
 
       request.onerror = (event) => {
         console.error('Error writing app object with id ' + id);
+        reject(event);
+      };
+    });
+  },
+
+  /**
+   * Delete an app from the database.
+   * 
+   * @param {string} id The ID of the app to delete.
+   */
+  deleteApp: function(id) {
+    return new Promise((resolve, reject) => {
+      const transaction = this.db.transaction(['apps'], 'readwrite');
+
+      transaction.oncomplete = (event) => {
+        resolve(event);
+      };
+
+      transaction.onerror = (event) => {
+        console.error('Transaction error deleting app with id ' + id);
+        reject(event);
+      };
+
+      const objectStore = transaction.objectStore('apps');
+
+      const request = objectStore.delete(id);
+
+      request.onsuccess = (event) => {
+        console.log('Successfully deleted app with id ' + id);
+      };
+
+      request.onerror = (event) => {
+        console.error('Error requesting deletion of app object with id ' + id);
         reject(event);
       };
     });

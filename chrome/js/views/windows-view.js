@@ -33,6 +33,8 @@ const WindowsView = {
       this.handleCloseWindowButtonClicked.bind(this));
     this.windowsElement.addEventListener('_pinapprequested',
       this.handlePinAppRequest.bind(this));
+    this.windowsElement.addEventListener('_unpinapprequested',
+      this.handleUnpinAppRequest.bind(this));
     this.windowsElement.addEventListener('_locationchanged', 
       this.handleWindowLocationChange.bind(this));
 
@@ -209,6 +211,39 @@ const WindowsView = {
     });
   },
 
+/**
+ * Handle a request to unpin an app.
+ * 
+ * @param {CustomEvent} event An _unpinapprequested event containing document URL of the requesting page 
+ */
+handleUnpinAppRequest: function(event) {
+  // Find the app which the provided document URL belongs to
+  const app = window.webApps.match(event.detail.documentUrl);
+
+  if(!app) {
+    console.error('Found no app matching the provided document URL');
+    window.dispatchEvent(new CustomEvent('_error', { detail: { error: 'Failed to unpin app'}}));
+  }
+
+  // Delete the app
+  window.webApps.unpin(app.id).then(() => {
+    // Unpin all browser windows with a current URL within scope of the pinned app
+    this.windows.forEach((browserWindow, windowId, windowsMap) => {
+      const documentUrl = browserWindow.element.getUrl();
+      if(app.isWithinScope(documentUrl)) {
+        // Unapply manifest and revert back to browser display mode
+        browserWindow.element.setAttribute('display-mode', 'browser');
+        browserWindow.element.removeAttribute('application-name');
+        browserWindow.element.removeAttribute('application-icon');
+        // There may be another overlapping app but the manifest will get applied on the 
+        // next navigation
+      }
+    });
+  }).catch((error) => {
+    window.dispatchEvent(new CustomEvent('_error', { detail: { error: 'Failed to unpin app'}}));
+  });
+},
+
   /**
    * Handle a location change of a window.
    * 
@@ -228,10 +263,10 @@ const WindowsView = {
       browserWindow.element.setAttribute('application-name', app.name || app.short_name || '');
       browserWindow.element.setAttribute('application-icon', app.getBestIconUrl(this.TITLE_BAR_APP_ICON_SIZE));
     } else {
-      // Reset display mode, application name and application icon
+      // Unapply manifest and reset display mode to browser
       browserWindow.element.setAttribute('display-mode', 'browser');
-      browserWindow.element.setAttribute('application-name', '');
-      browserWindow.element.setAttribute('application-icon', this.DEFAULT_APP_ICON_URL);
+      browserWindow.element.removeAttribute('application-name');
+      browserWindow.element.removeAttribute('application-icon');
     }
   },
 
