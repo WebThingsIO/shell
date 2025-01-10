@@ -22,6 +22,7 @@ class WebApps {
    */
   async start() {
     console.log('Starting app manager...');
+    window.addEventListener('_appschanged', this.refreshAppList.bind(this));
     return this.refreshAppList();
   }
 

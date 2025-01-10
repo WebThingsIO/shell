@@ -35,10 +35,13 @@ const Chrome = {
     this.updateClock();
     window.setInterval(this.updateClock.bind(this), 1000);
 
-    // Start database, app manager and views.
-    Database.start().then(() => {
+    // Start database, app manager, settings manager and views.
+    Database.start().then(async () => {
       window.webApps = new WebApps(Database);
-      return window.webApps.start();
+      window.settings = new Settings(Database);
+      await window.webApps.start();
+      await window.settings.start();
+      return;
     }).then(() => {
       WindowsView.start();
       HomescreenView.start();

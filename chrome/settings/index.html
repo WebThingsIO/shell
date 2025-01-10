@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Settings</title>
+    <link rel="icon" href="images/settings.svg"/>
+    <link rel="stylesheet" href="../css/fonts.css" type="text/css" />
+    <link rel="stylesheet" href="css/settings.css" type="text/css" />
+    <script type="text/javascript" src="../js/database.js"></script>
+    <script type="text/javascript" src="../js/models/settings.js"></script>
+    <script type="text/javascript" src="../js/views/components/message-toast.js"></script>
+    <script type="text/javascript" src="js/settings-view.js"></script>
+    <link rel="manifest" href="app.webmanifest" />
+  </head>
+  <body>
+    <button id="settings-back-button" href="#" class="hidden back-button">
+      <img src="images/back.svg" alt="Back">
+    </button>
+    <nav id="settings-menu">
+      <h1 id="settings-heading"><img src="images/settings.svg">Settings</h1>
+      <ul class="settings-list">
+        <li class="settings-item">
+          <a id="homescreen-settings-link" href="#homescreen-settings">Home screen</a></li>
+      </ul>
+    </nav>
+    <section id="homescreen-settings" class="hidden settings-section">
+      <h1 id="homescreen-settings-heading" class="settings-heading">
+        <img src="../images/home.svg">Home Screen
+      </h1>
+      <form id="homescreen-settings-form">
+        <label for="homepage-url-input">Home Page URL</label>
+        <input id="homepage-url-input" type="url">
+        <span class="hint">e.g. http://gateway.local</span>
+        <input type="submit" value="Save">
+      </form>
+    </section>
+    <div id="message-area" class="message-area"></div>
+  </body>
+</html>

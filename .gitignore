@@ -108,3 +108,6 @@ dist
 *_amd64*.txt
 *_arm64*.txt
 *_armhf*.txt
+
+# macOS
+.DS_Store
