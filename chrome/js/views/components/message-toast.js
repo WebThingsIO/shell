@@ -23,7 +23,7 @@ class MessageToast extends HTMLElement {
 
       .toast {
         position: relative;
-        width: calc(100% - 20px);
+        width: calc(100%);
         max-width: 500px;
         min-height: 42px;
         margin: 0;
@@ -47,7 +47,7 @@ class MessageToast extends HTMLElement {
         width: 32px;
         height: 32px;
         margin: 5px;
-        background-image: url('./images/close.svg');
+        background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjwhLS0gQ3JlYXRlZCB3aXRoIElua3NjYXBlIChodHRwOi8vd3d3Lmlua3NjYXBlLm9yZy8pIC0tPgoKPHN2ZwogICB3aWR0aD0iMTIiCiAgIGhlaWdodD0iMTIiCiAgIHZpZXdCb3g9IjAgMCAzLjE3NTAwMDEgMy4xNzUiCiAgIHZlcnNpb249IjEuMSIKICAgaWQ9InN2ZzE1MTQiCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sbnM6c3ZnPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGRlZnMKICAgICBpZD0iZGVmczE1MTEiIC8+CiAgPGcKICAgICBpZD0ibGF5ZXIxIgogICAgIHRyYW5zZm9ybT0idHJhbnNsYXRlKC04MC4yMTMzNTEsLTczLjkyMDk1NSkiPgogICAgPGcKICAgICAgIGFyaWEtbGFiZWw9IisiCiAgICAgICB0cmFuc2Zvcm09Im1hdHJpeCgwLjE2NTU1MTY5LDAuMTY1NTUxNjksLTAuMTY1NTUxNjksMC4xNjU1NTE2OSwtNDI4LjE4MzQ0LC05MDAuMzk5MzgpIgogICAgICAgaWQ9InRleHQxMjkxLTUiCiAgICAgICBzdHlsZT0iZm9udC1zaXplOjQuMDE2MjNweDtsaW5lLWhlaWdodDowJTtsZXR0ZXItc3BhY2luZzowcHg7d29yZC1zcGFjaW5nOjBweDtmaWxsOiNmZmZmZmY7c3Ryb2tlLXdpZHRoOjAuMzM0Njg2Ij4KICAgICAgPHBhdGgKICAgICAgICAgZD0ibSA0NDk2LjIwNDEsMTQwOC4yNjggaCAtNy4zODE1IHYgNy4zODE1IGggLTIuMjQ4MyB2IC03LjM4MTUgaCAtNy4zODE0IHYgLTIuMTY3IGggNy4zODE0IHYgLTcuMzgxNSBoIDIuMjQ4MyB2IDcuMzgxNSBoIDcuMzgxNSB6IgogICAgICAgICBzdHlsZT0iZm9udC1zaXplOjI3LjczOHB4O2xpbmUtaGVpZ2h0OjEuMjUiCiAgICAgICAgIGlkPSJwYXRoMTQ5OCIgLz4KICAgIDwvZz4KICA8L2c+Cjwvc3ZnPgo=');
         background-size: 12px;
         background-position: center;
         background-repeat: no-repeat;

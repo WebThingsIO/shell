@@ -1,0 +1,311 @@
+{
+  "https://mail.google.com/mail/?usp=installed_webapp": {
+    "manifestUrl": "https://mail.google.com/mail/u/0/manifest.json",
+    "documentUrl": "https://mail.google.com/mail/u/0/#inbox",
+    "manifest": {
+      "name": "Gmail",
+      "short_name": "Gmail",
+      "background_color": "#FFFFFF",
+      "display": "browser",
+      "start_url": "/mail/?usp=installed_webapp",
+      "scope": "/mail/",
+      "icons": [
+        {
+          "src": "//ssl.gstatic.com/images/branding/product/2x/hh_gmail_16dp.png",
+          "sizes": "32x32",
+          "type": "image/png"
+        },
+        {
+          "src": "//ssl.gstatic.com/images/branding/product/1x/hh_gmail_96dp.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        },
+        {
+          "src": "//ssl.gstatic.com/images/branding/product/2x/hh_gmail_96dp.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        },
+        {
+          "src": "//ssl.gstatic.com/images/branding/product/1x/hh_gmail_512dp.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        }
+      ],
+      "theme_color": "#FFFFFF",
+      "related_applications": [],
+      "shortcuts": []
+    }
+  },
+
+  "https://calendar.google.com/calendar/r": {
+    "manifestUrl": "https://calendar.google.com/calendar/manifest.json",
+    "documentUrl": "https://calendar.google.com/calendar/u/0/r",
+    "manifest": {
+      "short_name": "Calendar",
+      "name": "Google Calendar",
+      "icons": [
+        {
+          "src": "https://www.gstatic.com/calendar/images/manifest/logo_2020q4_192.png",
+          "type": "image/png",
+          "sizes": "192x192"
+        },
+        {
+          "src": "https://www.gstatic.com/calendar/images/manifest/logo_2020q4_512.png",
+          "type": "image/png",
+          "sizes": "512x512"
+        },
+        {
+          "src": "https://www.gstatic.com/calendar/images/manifest/logo_32.png",
+          "type": "image/png",
+          "sizes": "32x32"
+        }
+      ],
+      "start_url": "/calendar/r",
+      "background_color": "#FFFFFF",
+      "display": "browser",
+      "scope": "/calendar/",
+      "theme_color": "#F8FAFD"
+    }
+
+  },
+
+  "https://www.facebook.com/?ref=homescreenpwa": {
+    "manifestUrl": "https://www.facebook.com/data/manifest/",
+    "documentUrl": "https://www.facebook.com/",
+    "manifest": {
+      "gcm_sender_id": "15057814354",
+      "gcm_user_visible_only": true,
+      "edge_side_panel": {
+        "preferred_width": 376
+      },
+      "short_name": "Facebook",
+      "name": "Facebook",
+      "start_url": "/?ref=homescreenpwa",
+      "display": "minimal-ui",
+      "background_color": "#FFFFFF",
+      "theme_color": "#1877F2",
+      "icons": [
+        {
+          "src": "https://static.xx.fbcdn.net/rsrc.php/v4/y0/r/eFZD1KABzRA.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        },
+        {
+          "src": "https://static.xx.fbcdn.net/rsrc.php/v4/yd/r/DeNyZD1Vj3q.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        }
+      ],
+      "widgets": [
+        {
+          "name": "Facebook",
+          "description": "Facebook",
+          "short_name": "Facebook",
+          "tag": "fb_widget",
+          "type": "application/json",
+          "update": 100,
+          "icons": [
+            {
+              "src": "https://static.xx.fbcdn.net/rsrc.php/v4/y0/r/eFZD1KABzRA.png",
+              "sizes": "192x192"
+            }
+          ],
+          "screenshots": [
+            {
+              "src": "https://static.xx.fbcdn.net/rsrc.php/v4/yT/r/mqlhqxHpT-X.png",
+              "sizes": "464x478",
+              "label": "Widget Screenshot"
+            }
+          ],
+          "template": "dummy",
+          "data": "/dummy.json",
+          "ms_ac_template": "/dummy.json"
+        }
+      ],
+      "related_applications": [
+        {
+          "platform": "play",
+          "id": "com.facebook.katana"
+        },
+        {
+          "platform": "play",
+          "id": "com.facebook.lite"
+        },
+        {
+          "platform": "play",
+          "id": "com.facebook.orca"
+        },
+        {
+          "platform": "play",
+          "id": "com.facebook.mlite"
+        }
+      ],
+      "prefer_related_applications": false
+    }
+  },
+
+  "https://x.com/?utm_source=homescreen&utm_medium=shortcut": {
+    "manifestUrl": "https://x.com/manifest.json",
+    "documentUrl": "https://x.com/?mx=2",
+    "manifest": {
+      "background_color": "#ffffff",
+      "categories": [
+        "social",
+        "news",
+        "magazines"
+      ],
+      "description": "Get breaking news, politics, trending music, world events, sports scores and the latest global news stories as they unfold – all with less data.",
+      "display": "standalone",
+      "gcm_sender_id": "49625052041",
+      "gcm_user_visible_only": true,
+      "icons": [
+        {
+          "src": "https://abs.twimg.com/responsive-web/client-web/icon-default.522d363a.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        },
+        {
+          "src": "https://abs.twimg.com/responsive-web/client-web/icon-default-large.9ab12c3a.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        },
+        {
+          "purpose": "maskable",
+          "src": "https://abs.twimg.com/responsive-web/client-web/icon-default-maskable.bacea37a.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        },
+        {
+          "purpose": "maskable",
+          "src": "https://abs.twimg.com/responsive-web/client-web/icon-default-maskable-large.35928fda.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        }
+      ],
+      "name": "X",
+      "screenshots": [
+        {
+          "src": "https://abs.twimg.com/responsive-web/client-web/twitter-lite-data-saver-marketing.6805986a.png",
+          "sizes": "586x1041",
+          "type": "image/png"
+        },
+        {
+          "src": "https://abs.twimg.com/responsive-web/client-web/twitter-lite-explore-marketing.fd45b02a.png",
+          "sizes": "586x1041",
+          "type": "image/png"
+        },
+        {
+          "src": "https://abs.twimg.com/responsive-web/client-web/twitter-lite-timeline-marketing.befcdb4a.png",
+          "sizes": "586x1041",
+          "type": "image/png"
+        }
+      ],
+      "share_target": {
+        "action": "compose/tweet",
+        "enctype": "multipart/form-data",
+        "method": "POST",
+        "params": {
+          "title": "title",
+          "text": "text",
+          "url": "url",
+          "files": [
+            {
+              "name": "externalMedia",
+              "accept": [
+                "image/jpeg",
+                "image/png",
+                "image/gif",
+                "video/quicktime",
+                "video/mp4"
+              ]
+            }
+          ]
+        }
+      },
+      "shortcuts": [
+        {
+          "name": "New post",
+          "url": "/compose/post?utm_source=jumplist&utm_medium=shortcut",
+          "icons": [
+            {
+              "src": "https://abs.twimg.com/responsive-web/client-web/icon-compose.1238442a.png",
+              "type": "image/png",
+              "sizes": "192x192"
+            }
+          ]
+        },
+        {
+          "name": "Explore",
+          "url": "/explore?utm_source=jumplist&utm_medium=shortcut",
+          "icons": [
+            {
+              "src": "https://abs.twimg.com/responsive-web/client-web/icon-search-stroke.5f9aa88a.png",
+              "type": "image/png",
+              "sizes": "192x192"
+            }
+          ]
+        },
+        {
+          "name": "Notifications",
+          "url": "/notifications?utm_source=jumplist&utm_medium=shortcut",
+          "icons": [
+            {
+              "src": "https://abs.twimg.com/responsive-web/client-web/icon-notifications-stroke.429602da.png",
+              "type": "image/png",
+              "sizes": "192x192"
+            }
+          ]
+        },
+        {
+          "name": "Direct Messages",
+          "url": "/messages?utm_source=jumplist&utm_medium=shortcut",
+          "icons": [
+            {
+              "src": "https://abs.twimg.com/responsive-web/client-web/icon-messages-stroke.5f95edca.png",
+              "type": "image/png",
+              "sizes": "192x192"
+            }
+          ]
+        }
+      ],
+      "short_name": "X",
+      "start_url": "https://x.com/?utm_source=homescreen&utm_medium=shortcut",
+      "theme_color": "#ffffff",
+      "scope": "/",
+      "android_package_name": "com.twitter.android",
+      "prefer_related_applications": true,
+      "related_applications": [
+        {
+          "id": "com.twitter.android",
+          "platform": "chromeos_play",
+          "url": "https://play.google.com/store/apps/details?id=com.twitter.android"
+        }
+      ],
+      "launch_handler": {
+        "route_to": "existing-client",
+        "navigate_existing_client": "never"
+      }
+    }
+
+  },
+
+  "{chrome}/settings/index.html": {
+    "documentUrl": "{chrome}/settings/index.html",
+    "manifestUrl": "{chrome}/settings/app.webmanifest",
+    "manifest": {
+      "name": "Settings",
+      "short_name": "Settings",
+      "start_url": "./index.html",
+      "scope": "./",
+      "display": "standalone",
+      "icons": [
+        {
+          "src": "images/settings.svg",
+          "sizes": "any",
+          "type": "image/png",
+          "purpose": "any"
+        }
+      ]
+    }
+  }
+}
