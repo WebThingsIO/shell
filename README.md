@@ -2,6 +2,8 @@
 
 WebThings Shell is a web app runtime for smart displays.
 
+![A UI mockup of WebThings Shell showing system toolbars](https://webthings.io/about/images/webthings_shell_ui_mockup.png)
+
 It can be used to create your own touch screen control panel to view and interact with web applications, e.g. the web interface of [WebThings Gateway](https://webthings.io/gateway/).
 
 - [UI mockups](https://docs.google.com/presentation/d/e/2PACX-1vRuYf4dpo1D9kfjkraS8T5MEyy-1ZWmVOch-ts8anU10RAbDyNVDy0SPF00gk5Of16EBcAhPBV6Og-1/pub?start=false&loop=false&delayms=3000)
