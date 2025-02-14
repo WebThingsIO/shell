@@ -26,6 +26,8 @@ const WindowsView = {
       this.handleWindowsButtonClicked.bind(this));
     window.addEventListener('_newwindowbuttonclicked', 
       this.handleNewWindowButtonClicked.bind(this));
+    window.addEventListener('_newwindowrequested',
+      this.handleNewWindowRequested.bind(this));
 
     this.windowPreviewsElement.addEventListener('click', 
       this.handleWindowPreviewClicked.bind(this));
@@ -127,18 +129,34 @@ const WindowsView = {
   },
 
   /**
-   * Handle a click on the new window button. 
+   * Handle a click on the new window button.
    */
   handleNewWindowButtonClicked: function() {
+    this.handleNewWindowRequested();
+  },
+
+
+  /**
+   * Handle a request to create a new window.
+   * 
+   * @param {Event} event The _newwindowrequested event, which may contain a URL at event.detail.url.
+   */
+  handleNewWindowRequested: function(event) {
     const newWindowId = uuidv4();
-    const newWindow = this.windowsElement.appendChild(new BrowserWindow());
+    let newWindow;
+    if(event && event.detail && event.detail.url) {
+      newWindow = this.windowsElement.appendChild(new BrowserWindow(event.detail.url));
+    } else {
+      newWindow = this.windowsElement.appendChild(new BrowserWindow());
+    }
     newWindow.id = newWindowId;
     this.windows.set(newWindowId, {
       element: newWindow
     });
-    this.selectWindow(newWindowId);
+    this.selectWindow(newWindowId);  
+    this.hideWindowSwitcher();
+    this.show();
   },
-
 
   /**
    * Handle a click on the window previews element.
@@ -211,38 +229,38 @@ const WindowsView = {
     });
   },
 
-/**
- * Handle a request to unpin an app.
- * 
- * @param {CustomEvent} event An _unpinapprequested event containing document URL of the requesting page 
- */
-handleUnpinAppRequest: function(event) {
-  // Find the app which the provided document URL belongs to
-  const app = window.webApps.match(event.detail.documentUrl);
+  /**
+   * Handle a request to unpin an app.
+   * 
+   * @param {CustomEvent} event An _unpinapprequested event containing document URL of the requesting page 
+   */
+  handleUnpinAppRequest: function(event) {
+    // Find the app which the provided document URL belongs to
+    const app = window.webApps.match(event.detail.documentUrl);
 
-  if(!app) {
-    console.error('Found no app matching the provided document URL');
-    window.dispatchEvent(new CustomEvent('_error', { detail: { error: 'Failed to unpin app'}}));
-  }
+    if(!app) {
+      console.error('Found no app matching the provided document URL');
+      window.dispatchEvent(new CustomEvent('_error', { detail: { error: 'Failed to unpin app'}}));
+    }
 
-  // Delete the app
-  window.webApps.unpin(app.id).then(() => {
-    // Unpin all browser windows with a current URL within scope of the pinned app
-    this.windows.forEach((browserWindow, windowId, windowsMap) => {
-      const documentUrl = browserWindow.element.getUrl();
-      if(app.isWithinScope(documentUrl)) {
-        // Unapply manifest and revert back to browser display mode
-        browserWindow.element.setAttribute('display-mode', 'browser');
-        browserWindow.element.removeAttribute('application-name');
-        browserWindow.element.removeAttribute('application-icon');
-        // There may be another overlapping app but the manifest will get applied on the 
-        // next navigation
-      }
+    // Delete the app
+    window.webApps.unpin(app.id).then(() => {
+      // Unpin all browser windows with a current URL within scope of the pinned app
+      this.windows.forEach((browserWindow, windowId, windowsMap) => {
+        const documentUrl = browserWindow.element.getUrl();
+        if(app.isWithinScope(documentUrl)) {
+          // Unapply manifest and revert back to browser display mode
+          browserWindow.element.setAttribute('display-mode', 'browser');
+          browserWindow.element.removeAttribute('application-name');
+          browserWindow.element.removeAttribute('application-icon');
+          // There may be another overlapping app but the manifest will get applied on the 
+          // next navigation
+        }
+      });
+    }).catch((error) => {
+      window.dispatchEvent(new CustomEvent('_error', { detail: { error: 'Failed to unpin app'}}));
     });
-  }).catch((error) => {
-    window.dispatchEvent(new CustomEvent('_error', { detail: { error: 'Failed to unpin app'}}));
-  });
-},
+  },
 
   /**
    * Handle a location change of a window.

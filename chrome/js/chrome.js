@@ -26,6 +26,8 @@ const Chrome = {
       this.handleWindowsButtonClick.bind(this));
     this.newWindowButton.addEventListener('click',
       this.handleNewWindowButtonClick.bind(this));
+    this.clock.addEventListener('click',
+      this.handleClockClick.bind(this));
 
     window.addEventListener('_windowselected',
       this.handleWindowSelected.bind(this));
@@ -45,6 +47,7 @@ const Chrome = {
     }).then(() => {
       WindowsView.start();
       HomescreenView.start();
+      SettingsMenuView.start();
     });
     
     // Uncomment the following two lines to open developer tools for webview
@@ -84,6 +87,10 @@ const Chrome = {
     window.dispatchEvent(new CustomEvent('_newwindowbuttonclicked'));
     this.newWindowMenuItem.classList.add('hidden');
     this.windowsMenuItem.classList.remove('hidden');
+  },
+
+  handleClockClick: function() {
+    SettingsMenuView.show();
   },
 
   /**

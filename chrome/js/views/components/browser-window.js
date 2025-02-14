@@ -15,8 +15,10 @@ class BrowserWindow extends HTMLElement {
   
   /**
    * Constructor.
+   * 
+   * @param {string} url The URL to open the window at, otherwise starts at new tab page.
    */
-  constructor() {
+  constructor(url) {
     super();
 
     this.attachShadow({ mode: 'open'});
@@ -224,7 +226,7 @@ class BrowserWindow extends HTMLElement {
           <input type="button" value="" class="reload-button">
         </form>
       </menu>
-      <webview class="browser-window-webview" src="${this.NEW_TAB_URL}" preload="js/webview-preload.js"></webview>
+      <webview class="browser-window-webview" src="${url || this.NEW_TAB_URL}" preload="js/webview-preload.js"></webview>
     `;
 
     this.shadowRoot.appendChild(template.content.cloneNode(true));
