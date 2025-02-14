@@ -18,10 +18,12 @@
     <script type="text/javascript" src="js/models/settings.js"></script>
     <script type="text/javascript" src="js/views/homescreen-view.js"></script>
     <script type="text/javascript" src="js/views/windows-view.js"></script>
+    <script type="text/javascript" src="js/views/settings-menu-view.js"></script>
     <script type="text/javascript" src="js/chrome.js"></script>
   </head>
   <body class="home">
     <menu id="status-bar">
+      <span id="status-bar-spacer"></span>
       <span id="clock"></span>
     </menu>
     <section id="homescreen-view" >
@@ -40,6 +42,15 @@
       <li id="windows-menu-item"><button id="windows-button"></button></li>
       <li id="new-window-menu-item" class="hidden"><button id="new-window-button"></button></li>
     </menu>
+    <menu id="settings-menu" class="hidden">
+      <li id="settings-menu-settings-item">
+        <button id="settings-menu-settings-button">
+          <img src="images/settings.svg" alt="Settings icon">
+          <span>Settings</span>
+        </button>
+      </li>
+    </menu>
+    <div id="settings-menu-scrim" class="hidden scrim"></div>
     <div id="message-area" class="message-area"></div>
   </body>
 </html>

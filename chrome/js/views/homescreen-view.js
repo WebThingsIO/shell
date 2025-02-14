@@ -18,6 +18,8 @@ const HomescreenView = {
       this.handleHomeButtonClicked.bind(this));
     window.addEventListener('_windowsbuttonclicked', 
       this.handleWindowsButtonClicked.bind(this));
+    window.addEventListener('_newwindowrequested',
+      this.handleWindowsButtonClicked.bind(this));
     this.homepage = window.settings.get('homepage');
     this.webview.src = this.homepage;
     // Update the homepage of the homescreen view if the homepage setting changes

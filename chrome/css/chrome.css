@@ -10,18 +10,31 @@ html, body {
 }
 
 #status-bar {
+  display: flex;
+  flex-direction: row;
   height: 24px;
   background-color: #000;
   margin: 0;
-  padding: 0 5px;
+  padding: 0;
   color: #fff;
   text-align: right;
 }
 
+#status-bar-spacer {
+  flex: 1;
+}
+
 #clock {
+  display: block;
+  height: 24px;
   line-height: 24px;
   font-size: 13px;
   font-family: 'Fira Sans', sans-serif;
+  padding: 0 10px;
+}
+
+#clock:hover, #clock:active {
+  background-color: #333;
 }
 
 #system-toolbar {
@@ -76,6 +89,95 @@ html, body {
 
 #new-window-button {
   background-image: url("../images/add.svg");
+}
+
+/** Settings Menu **/
+
+#settings-menu {
+  position: fixed;
+  top: 24px;
+  right: 5px;
+  width: 250px;
+  display: block;
+  background-color: #e5e5e5;
+  border-radius: 5px;
+  border: solid 1px #bfbfbf;
+  padding: 10px 0;
+  margin: 7.5px 0;
+  z-index: 2;
+}
+
+#settings-menu:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 5px;
+  width: 0;
+  height: 0;
+  border: 10px solid transparent;
+  border-bottom-color: #e5e5e5;
+  border-top: 0;
+  margin-left: -10px;
+  margin-top: -10px;
+}
+
+#settings-menu.hidden {
+  display: none;
+}
+
+#settings-menu-settings-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  list-style-type: none;
+}
+
+#settings-menu-settings-button {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 40px;
+  margin: 0;
+  padding: 0 10px;
+  border-radius: 0;
+  background-color: transparent;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  color: #000;
+}
+
+#settings-menu-settings-button button:hover, #settings-menu-settings-button:active {
+  background-color: #ccc;
+}
+
+#settings-menu-settings-button img {
+  width: 16px;
+  height: 16px;
+  padding: 8px;
+}
+
+#settings-menu-settings-button span {
+  flex: 1;
+  text-align: left;
+  font-size: 16px;
+}
+
+.scrim {
+  display: block;
+  background-color: transparent;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.scrim.hidden {
+  display: none;
 }
 
 /** Error message area **/
