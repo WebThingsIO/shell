@@ -1,3 +1,7 @@
 {
-  "homepage": "http://gateway.local"
+  "homepage": "http://gateway.local",
+  "search_provider": {
+    "name": "DuckDuckGo",
+    "search_url": "https://duckduckgo.com/?q={searchTerms}"
+  }
 }

@@ -1,4 +1,5 @@
 const path = require('path');
+const urlRegex = require('url-regex');
 
 /**
  * Browser Window.
@@ -220,7 +221,7 @@ class BrowserWindow extends HTMLElement {
         <form class="url-bar">
           <span class="spinner"></span>
           <img src="${this.DEFAULT_FAVICON_URL}" class="favicon" />
-          <input type="text" class="url-bar-input">
+          <input type="text" class="url-bar-input" placeholder="Search or enter address">
           <input type="submit" value="" class="go-button">
           <input type="button" value="" class="stop-button">
           <input type="button" value="" class="reload-button">
@@ -239,6 +240,11 @@ class BrowserWindow extends HTMLElement {
     this.favicon = this.shadowRoot.querySelector('.favicon');
     this.titleBarText = this.shadowRoot.querySelector('.title-bar-text');
     this.titleBarIcon = this.shadowRoot.querySelector('.title-bar-icon');
+    this.searchUrl = null;
+    const searchProvider = window.settings.get('search_provider');
+    if (searchProvider && searchProvider.search_url) {
+      this.searchUrl = searchProvider.search_url;
+    }
   }
 
   /**
@@ -500,13 +506,23 @@ class BrowserWindow extends HTMLElement {
     event.preventDefault();
     let urlInput = this.urlBarInput.value;
     let url;
-    // Check for a valid URL
+    // Test for a valid URL
     try {
       url = new URL(urlInput).href;
     } catch {
+      // If not a valid URL, test whether the input looks like a potential URL
+      let isPotentialUrl = urlRegex({exact: true, strict: false}).test(urlInput);
+      // If it doesn't look like a URL, then do a web search
+      if(!isPotentialUrl) {
+        this.search(urlInput);
+        return;
+      }
+      // If it looks like a potential URL then test if prepending http:// makes it a valid URL
       try {
-        url = new URL('http://' + urlInput).href;
+          url = new URL('http://' + urlInput).href;
       } catch {
+        // If it's still not a valid URL then do a web search
+        this.search(urlInput);
         return;
       }
     }
@@ -514,6 +530,26 @@ class BrowserWindow extends HTMLElement {
     this.currentUrl = url;
     // Navigate
     this.webview.loadURL(url);
+    // Unfocus the URL bar
+    this.urlBarInput.blur();
+  }
+
+  /**
+   * Turn the URL bar input into a search query.
+   * 
+   * @param {String} input The text input by the user.
+   */
+  search(input) {
+    // If no search engine is configured then return.
+    if(!this.searchUrl) {
+      return;
+    }
+    // Construct search query URL from template search URL in settings
+    let searchQueryUrl = this.searchUrl.replace('{searchTerms}', input);
+    // Manually set URL bar (navigation may not succeed or may redirect)
+    this.currentUrl = searchQueryUrl;
+    // Navigate
+    this.webview.loadURL(searchQueryUrl);
     // Unfocus the URL bar
     this.urlBarInput.blur();
   }
