@@ -19,6 +19,7 @@
     "electron-packager": "^17.1.1"
   },
   "dependencies": {
+    "url-regex": "^5.0.0",
     "uuid": "^9.0.1"
   }
 }
