@@ -8,10 +8,12 @@ class WindowPreview extends HTMLElement {
   /**
    * Constructor.
    * 
+   * @param {String} windowID The UUID of the window to which the preview corresponds.
    * @param {String} title A title to show in the title bar.
    * @param {String} iconUrl The URL of a favicon URL to show in the title bar.
+   * @param {String} thumbnail A thumbnail image in the form of a data URL.
    */
-  constructor(windowId, title, iconUrl) {
+  constructor(windowId, title, iconUrl, thumbnail) {
     super();
 
     // The ID of the window of which this is a preview
@@ -76,6 +78,8 @@ class WindowPreview extends HTMLElement {
           flex: 1;
           width: 100%;
           background-color: #5d5d5d;
+          background-size: cover;
+          background-position: top center;
         }
       </style>
       <menu class="title-bar">
@@ -91,6 +95,10 @@ class WindowPreview extends HTMLElement {
 
     this.closeButton = this.shadowRoot.querySelector('.close-button');
     this.favicon = this.shadowRoot.querySelector('.favicon');
+    this.windowThumbnail = this.shadowRoot.querySelector('.window-thumbnail');
+    if (thumbnail) {
+      this.windowThumbnail.style.setProperty('background-image', `url("${thumbnail}")`);
+    }
   }
 
   /**

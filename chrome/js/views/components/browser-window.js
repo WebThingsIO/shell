@@ -12,6 +12,7 @@ class BrowserWindow extends HTMLElement {
   DEFAULT_FAVICON_URL = 'images/default-favicon.svg';
   SITE_INFO_APP_ICON_SIZE = 64;
   currentFaviconUrl = this.DEFAULT_FAVICON_URL;
+  thumbnail = null; // A thumbnail of the current page in the form of a data URL
   static observedAttributes = ['display-mode', 'application-name', 'application-icon', 'src'];
   
   /**
@@ -265,6 +266,10 @@ class BrowserWindow extends HTMLElement {
     return this.currentFaviconUrl;
   }
 
+  getThumbnail() {
+    return this.thumbnail;
+  }
+
   /**
    * Get the title of the currently loaded web page.
    * 
@@ -320,6 +325,8 @@ class BrowserWindow extends HTMLElement {
       this.handleStartLoading.bind(this));
     this.webview.addEventListener('did-stop-loading',
       this.handleStopLoading.bind(this));
+    this.webview.addEventListener('did-finish-load',
+      this.handleFinishLoading.bind(this));
     this.webview.addEventListener('page-favicon-updated',
       this.handleFaviconUpdated.bind(this));
     this.webview.addEventListener('ipc-message',
@@ -566,6 +573,16 @@ class BrowserWindow extends HTMLElement {
    */
   handleStopLoading() {
     this.urlBar.classList.remove('loading');
+  }
+
+  /**
+   * Handle the webview finishing loading.
+   */
+  handleFinishLoading() {
+    // Capture a screenshot of the page as a thumbnail for the window manager
+    this.webview.capturePage().then((image) => {
+      this.thumbnail = image.toDataURL();
+    });
   }
 
   /**

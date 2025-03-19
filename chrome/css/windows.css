@@ -71,6 +71,7 @@ window-preview {
   margin-left: 5.75vw;
   margin-right: 5.75vw;
   flex: 0 0 62.5vw;
-  height: 62.5vh;
+  /* Viewport height minus status var minus address bar minus system toolbar x62.5% plus preview titlebar */
+  height: calc((100vh - 24px - 38px - 32px) * 0.625 + 40px);
   scroll-snap-align: center;
 }

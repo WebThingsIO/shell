@@ -78,8 +78,9 @@ const WindowsView = {
     this.windows.forEach((value, key, map) => {
       const title = value.element.getTitle();
       const iconUrl = value.element.getFaviconUrl();
+      const thumbnail = value.element.getThumbnail();
       const newWindowPreview = this.windowPreviewsElement.appendChild(
-        new WindowPreview(key, title, iconUrl));
+        new WindowPreview(key, title, iconUrl, thumbnail));
       newWindowPreview.dataset.windowId = key;
 
       // Store the window preview element in a map of window previews
