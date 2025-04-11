@@ -15,11 +15,11 @@
   "author": "WebThingsIO",
   "license": "MPL-2.0",
   "devDependencies": {
-    "electron": "^28.2.2",
+    "electron": "^35.1.5",
     "electron-packager": "^17.1.1"
   },
   "dependencies": {
     "url-regex": "^5.0.0",
-    "uuid": "^9.0.1"
+    "uuid": "^11.1.0"
   }
 }
