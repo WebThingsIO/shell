@@ -11,7 +11,7 @@ const HomescreenView = {
   start: function() {
     console.log('Starting home screen view...');
     this.view = document.getElementById('homescreen-view');
-    this.webview = document.getElementById('homescreen-webview');
+    this.browserViewElement = document.getElementById('homescreen-browser-view');
     window.addEventListener('_backbuttonclicked',
       this.handleBackButtonClicked.bind(this));
     window.addEventListener('_homebuttonclicked',
@@ -21,7 +21,7 @@ const HomescreenView = {
     window.addEventListener('_newwindowrequested',
       this.handleWindowsButtonClicked.bind(this));
     this.homepage = window.settings.get('homepage');
-    this.webview.src = this.homepage;
+    window.browserViews.create('homescreen', this.homepage, this.browserViewElement, () => {});
     // Update the homepage of the homescreen view if the homepage setting changes
     window.settings.observe('homepage', this.handleHomepageChange.bind(this));
   },
@@ -40,7 +40,7 @@ const HomescreenView = {
    */
   handleBackButtonClicked: function() {
     if(document.body.classList.contains('home')) {
-      this.webview.goBack();
+      window.browserViews.call('homescreen', 'goBack').catch(console.error);
     }
   },
 
@@ -50,7 +50,7 @@ const HomescreenView = {
   handleHomeButtonClicked: function() {
     // If already on the homescreen then navigate to the home page
     if (document.body.classList.contains('home')) {
-      this.webview.src = this.homepage;
+      window.browserViews.call('homescreen', 'loadURL', this.homepage).catch(console.error);
     // Otherwise just switch to the home screen
     } else {
       document.body.classList.add('home');

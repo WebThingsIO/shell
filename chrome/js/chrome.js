@@ -50,9 +50,6 @@ const Chrome = {
       SettingsMenuView.start();
     });
     
-    // Uncomment the following two lines to open developer tools for webview
-    //this.homescreenWebview.addEventListener('dom-ready',
-    //  e => { this.homescreenWebview.openDevTools(); });
   },
 
   /**
