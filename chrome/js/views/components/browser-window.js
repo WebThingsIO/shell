@@ -1,5 +1,6 @@
 const path = require('path');
 const urlRegex = require('url-regex');
+const {v4: browserViewUuid} = require('uuid');
 
 /**
  * Browser Window.
@@ -198,7 +199,7 @@ class BrowserWindow extends HTMLElement {
           display: none;
         }
 
-        webview {
+        .browser-window-content {
           width: 100%;
           flex: 1;
         }
@@ -228,12 +229,13 @@ class BrowserWindow extends HTMLElement {
           <input type="button" value="" class="reload-button">
         </form>
       </menu>
-      <webview class="browser-window-webview" src="${url || this.NEW_TAB_URL}" preload="js/webview-preload.js"></webview>
+      <div class="browser-window-content"></div>
     `;
 
     this.shadowRoot.appendChild(template.content.cloneNode(true));
     this.element = this.shadowRoot.host;
-    this.webview = this.shadowRoot.querySelector('webview');
+    this.browserViewId = browserViewUuid();
+    this.browserViewElement = this.shadowRoot.querySelector('.browser-window-content');
     this.urlBar = this.shadowRoot.querySelector('.url-bar');
     this.urlBarInput = this.shadowRoot.querySelector('.url-bar-input');
     this.stopButton = this.shadowRoot.querySelector('.stop-button');
@@ -242,6 +244,8 @@ class BrowserWindow extends HTMLElement {
     this.titleBarText = this.shadowRoot.querySelector('.title-bar-text');
     this.titleBarIcon = this.shadowRoot.querySelector('.title-bar-icon');
     this.searchUrl = null;
+    this.currentUrl = url || this.NEW_TAB_URL;
+    this.currentTitle = '';
     const searchProvider = window.settings.get('search_provider');
     if (searchProvider && searchProvider.search_url) {
       this.searchUrl = searchProvider.search_url;
@@ -254,7 +258,7 @@ class BrowserWindow extends HTMLElement {
    * @returns {String} The URL of the currently loaded web page.
    */
   getUrl() {
-    return this.webview.getURL();
+    return this.currentUrl;
   }
 
   /**
@@ -276,7 +280,7 @@ class BrowserWindow extends HTMLElement {
    * @returns {String} The title of the currently loaded web page.
    */
   getTitle() {
-    return this.webview.getTitle();
+    return this.currentTitle;
   }
 
   /**
@@ -315,24 +319,14 @@ class BrowserWindow extends HTMLElement {
    * Add event listeners when element added into document.
    */
   connectedCallback() {
-    this.webview.addEventListener('will-navigate',
-      this.handleLocationChange.bind(this));
-    this.webview.addEventListener('did-navigate',
-      this.handleLocationChange.bind(this));
-    this.webview.addEventListener('did-navigate-in-page',
-      this.handleInPageLocationChange.bind(this));
-    this.webview.addEventListener('did-start-loading',
-      this.handleStartLoading.bind(this));
-    this.webview.addEventListener('did-stop-loading',
-      this.handleStopLoading.bind(this));
-    this.webview.addEventListener('did-finish-load',
-      this.handleFinishLoading.bind(this));
-    this.webview.addEventListener('page-favicon-updated',
-      this.handleFaviconUpdated.bind(this));
-    this.webview.addEventListener('ipc-message',
-      this.handleIPCMessage.bind(this));
-    this.webview.addEventListener('did-attach', 
-      this.handleWebviewReady.bind(this));
+    if (!this.browserView) {
+      this.browserView = window.browserViews.create(
+        this.browserViewId,
+        this.currentUrl,
+        this.browserViewElement,
+        this.handleBrowserViewEvent.bind(this)
+      );
+    }
     this.titleBarIcon.addEventListener('click',
       this.handleTitleBarIconClick.bind(this));
     this.urlBarInput.addEventListener('focus',
@@ -349,21 +343,44 @@ class BrowserWindow extends HTMLElement {
       this.handleFaviconClick.bind(this));
   }
 
-  /**
-   * Do things that need to be done once the webview is attached to the DOM.
-   * 
-   * @param {Event} event The did-attach event.
-   */
-  handleWebviewReady(event) {
-    // Uncomment this line to show developer tools for embedded webview.
-    //this.webview.openDevTools();
+  handleBrowserViewEvent(event) {
+    switch (event.type) {
+      case 'will-navigate':
+      case 'did-navigate':
+        this.handleLocationChange(event);
+        break;
+      case 'did-navigate-in-page':
+        this.handleInPageLocationChange(event);
+        break;
+      case 'did-start-loading':
+        this.handleStartLoading();
+        break;
+      case 'did-stop-loading':
+        this.handleStopLoading();
+        break;
+      case 'did-finish-load':
+        this.handleFinishLoading();
+        break;
+      case 'page-favicon-updated':
+        this.handleFaviconUpdated(event);
+        break;
+      case 'page-title-updated':
+        this.currentTitle = event.title;
+        break;
+      case 'ipc-message':
+        this.handleIPCMessage(event);
+        break;
+    }
   }
 
   /**
    * Remove event listeners when element disconnected from DOM.
    */
   disconnectedCallback() {
-    return;
+    if (this.browserView) {
+      window.browserViews.destroy(this.browserViewId);
+      this.browserView = null;
+    }
   }
 
   /**
@@ -385,7 +402,7 @@ class BrowserWindow extends HTMLElement {
         break;
       case 'src':
         if (newValue != this.currentUrl) {
-          this.webview.loadURL(newValue);
+          window.browserViews.call(this.browserViewId, 'loadURL', newValue).catch(console.error);
         }
         break;
     }
@@ -395,7 +412,7 @@ class BrowserWindow extends HTMLElement {
    * Navigate the window back to the previous URL.
    */
   goBack() {
-    this.webview.goBack();
+    window.browserViews.call(this.browserViewId, 'goBack').catch(console.error);
   }
 
   /**
@@ -536,7 +553,7 @@ class BrowserWindow extends HTMLElement {
     // Manually set URL bar (navigation may not succeed or may redirect)
     this.currentUrl = url;
     // Navigate
-    this.webview.loadURL(url);
+    window.browserViews.call(this.browserViewId, 'loadURL', url).catch(console.error);
     // Unfocus the URL bar
     this.urlBarInput.blur();
   }
@@ -556,33 +573,33 @@ class BrowserWindow extends HTMLElement {
     // Manually set URL bar (navigation may not succeed or may redirect)
     this.currentUrl = searchQueryUrl;
     // Navigate
-    this.webview.loadURL(searchQueryUrl);
+    window.browserViews.call(this.browserViewId, 'loadURL', searchQueryUrl).catch(console.error);
     // Unfocus the URL bar
     this.urlBarInput.blur();
   }
 
   /**
-   * Handle the webview starting loading.
+  * Handle the browser view starting loading.
    */
   handleStartLoading() {
     this.urlBar.classList.add('loading');
   }
 
   /**
-   * Handle the webview stopping loading.
+  * Handle the browser view stopping loading.
    */
   handleStopLoading() {
     this.urlBar.classList.remove('loading');
   }
 
   /**
-   * Handle the webview finishing loading.
+  * Handle the browser view finishing loading.
    */
   handleFinishLoading() {
     // Capture a screenshot of the page as a thumbnail for the window manager
-    this.webview.capturePage().then((image) => {
-      this.thumbnail = image.toDataURL();
-    });
+    window.browserViews.call(this.browserViewId, 'capturePage').then((dataUrl) => {
+      this.thumbnail = dataUrl;
+    }).catch(console.error);
   }
 
   /**
@@ -592,13 +609,13 @@ class BrowserWindow extends HTMLElement {
    */
   handleFaviconUpdated(event) {
     // Get the last icon in the array
-    let iconUrl = event.favicons.slice(-1) || this.DEFAULT_FAVICON_URL;
+    let iconUrl = event.favicons.slice(-1)[0] || this.DEFAULT_FAVICON_URL;
     this.currentFaviconUrl = iconUrl;
     this.favicon.src = iconUrl;
   }
 
   /**
-   * Handle receiving an IPC message from the embedded webview.
+  * Handle receiving an IPC message from the embedded browser view.
    * 
    * @param {Event} event The IPC message event. 
    */
@@ -613,14 +630,14 @@ class BrowserWindow extends HTMLElement {
    * Handle a click on the stop button.
    */
   handleStopButtonClick() {
-    this.webview.stop();
+    window.browserViews.call(this.browserViewId, 'stop').catch(console.error);
   }
 
   /**
    * Handle a click on the reload button.
    */
   handleReloadButtonClick() {
-    this.webview.reload();
+    window.browserViews.call(this.browserViewId, 'reload').catch(console.error);
   }
 
   /**
@@ -711,7 +728,7 @@ class BrowserWindow extends HTMLElement {
         credentialsMode = 'omit';
       }
       // Note: The following code is executed in the browsing context of the page
-      this.webview.executeJavaScript(`
+      window.browserViews.call(this.browserViewId, 'executeJavaScript', `
           function fetchManifest() {
             return new Promise((resolve, reject) => {
               // "Let request be a new Request."

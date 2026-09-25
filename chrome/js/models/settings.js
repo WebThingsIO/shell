@@ -81,7 +81,7 @@ class Settings {
    * Handle a settings broadcast event.
    * 
    * This is used to be notified when settings have been changed in another 
-   * browsing context, e.g. the main chrome frame or the settings webview.
+  * browsing context, e.g. the main chrome frame or an embedded browser view.
    * 
    * @param {Event} A BroadcastChannel message event.
    */
